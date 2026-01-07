@@ -52,7 +52,7 @@ export interface User {
  * Auth Response
  */
 export interface AuthResponse {
-  access_token: string;
+  accessToken: string;
   user: User;
 }
 
@@ -71,9 +71,9 @@ export enum RoomStatus {
 export interface Room {
   id: string;
   roomNumber: string;
-  floor: number;
-  price: number;
-  facilities: string[];
+  floor?: number;
+  rentalPrice: number;
+  facilities: Record<string, unknown>;
   status: RoomStatus;
   createdAt: string;
   updatedAt: string;
@@ -87,8 +87,8 @@ export interface Resident {
   userId: string;
   roomId: string;
   billingCycleDate: number;
-  moveInDate: string;
-  moveOutDate?: string;
+  entryDate: string;
+  exitDate?: string;
   isActive: boolean;
   user: User;
   room: Room;
@@ -116,7 +116,7 @@ export interface UtilityRecord {
   usage: number;
   ratePerUnit: number;
   totalCost: number;
-  recordDate: string;
+  readingDate: string;
   isBilled: boolean;
   resident: Resident;
   createdAt: string;
@@ -142,8 +142,8 @@ export interface Invoice {
   rentAmount: number;
   utilityAmount: number;
   totalAmount: number;
-  status: InvoiceStatus;
-  issueDate: string;
+  paymentStatus: InvoiceStatus;
+  billingDate: string;
   dueDate: string;
   paidDate?: string;
   resident: Resident;
@@ -157,7 +157,8 @@ export interface Invoice {
  */
 export enum LaundryStatus {
   PENDING = 'PENDING',
-  IN_PROGRESS = 'IN_PROGRESS',
+  ON_PROCESS = 'ON_PROCESS',
+  READY_TO_PICKUP = 'READY_TO_PICKUP',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
 }
@@ -206,7 +207,7 @@ export interface Complaint {
   residentId: string;
   title: string;
   description: string;
-  photoUrl?: string;
+  photos: string[];
   status: ComplaintStatus;
   resolutionNotes?: string;
   resident: Resident;
@@ -219,9 +220,10 @@ export interface Complaint {
  */
 export interface FridgeItem {
   id: string;
-  residentId: string;
+  ownerId: string;
   itemName: string;
   quantity: number;
+  dateIn: string;
   resident: Resident;
   createdAt: string;
   updatedAt: string;
@@ -233,8 +235,8 @@ export interface FridgeItem {
 export enum ExpenseCategory {
   MAINTENANCE = 'MAINTENANCE',
   UTILITIES = 'UTILITIES',
+  TRASH_FEE = 'TRASH_FEE',
   SUPPLIES = 'SUPPLIES',
-  SALARY = 'SALARY',
   OTHER = 'OTHER',
 }
 
@@ -246,7 +248,7 @@ export interface Expense {
   category: ExpenseCategory;
   amount: number;
   description: string;
-  expenseDate: string;
+  date: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -259,17 +261,13 @@ export interface FinancialReport {
     startDate: string;
     endDate: string;
   };
-  revenue: {
-    rent: number;
-    laundry: number;
-    total: number;
-  };
-  expenses: {
-    byCategory: Record<ExpenseCategory, number>;
-    total: number;
-  };
-  profit: {
-    net: number;
-    margin: number;
+  rentRevenue: number;
+  laundryRevenue: number;
+  totalExpenses: number;
+  netProfit: number;
+  breakdown: {
+    paidInvoices: number;
+    paidLaundryTransactions: number;
+    expenseRecords: number;
   };
 }
