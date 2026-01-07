@@ -4,7 +4,10 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Home } from "lucide-react";
+import { Loader2, Lock, User, AlertCircle } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { AxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +24,6 @@ import { loginSchema, type LoginFormData } from "@/lib/validations/auth.schema";
 import { authApi } from "@/lib/api/services/auth";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { handleApiError } from "@/lib/api/errorHandler";
-import { AxiosError } from "axios";
 
 function LoginForm() {
   const router = useRouter();
@@ -54,7 +56,7 @@ function LoginForm() {
       // Call login API
       const response = await authApi.login(data);
 
-      // Update auth store (this will also store token in localStorage)
+      // Update auth store
       login(response.user, response.accessToken);
 
       // Check for redirect parameter
@@ -65,20 +67,12 @@ function LoginForm() {
     } catch (err: unknown) {
       console.error("Login error:", err);
 
-      // Use error handler for consistent error messages
       if (err instanceof AxiosError) {
         const errorMessage = handleApiError(err);
-
-        // Check if it's a network error
         if (!err.response && err.request) {
-          // Network error - show detailed message
           setError(
             "❌ Tidak dapat terhubung ke server\n\n" +
-              "Pastikan:\n" +
-              "1. Backend API berjalan di http://localhost:3000\n" +
-              "2. Jalankan: cd ../KostManagement && npm run start:dev\n" +
-              "3. Cek file .env.local sudah benar\n\n" +
-              "Lihat TROUBLESHOOTING.md untuk panduan lengkap"
+              "Pastikan backend API berjalan."
           );
         } else {
           setError(errorMessage);
@@ -92,112 +86,159 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-background">
-      {/* Theme Toggle - Top Right */}
-      <div className="absolute top-4 right-4 z-10">
-        <ThemeToggle />
+    <div className="min-h-screen w-full flex bg-white dark:bg-slate-950 overflow-hidden">
+      {/* Visual Section - Clean White Design with Animation */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center relative p-8">
+        <div className="relative z-10 text-center">
+           {/* Panda Container with Float Animation */}
+           <div className="relative w-[500px] h-[500px] mx-auto mb-8 animate-float">
+              <Image 
+                src="/panda-login-white.png" 
+                alt="Mascot" 
+                fill
+                className="object-contain drop-shadow-xl"
+                priority
+              />
+           </div>
+           
+           <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 fill-mode-backwards">
+             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
+               Management Kost
+             </h1>
+             <p className="text-gray-500 dark:text-gray-400 text-lg max-w-md mx-auto">
+               Kelola bisnis kost Anda dengan lebih pintar.
+             </p>
+           </div>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          {/* Logo/Icon */}
-          <div className="flex justify-center mb-8">
-            <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
-              <Home className="h-8 w-8 text-primary-foreground" />
+      {/* Login Form Section */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 relative">
+        {/* Theme Toggle */}
+        <div className="absolute top-6 right-6 animate-in fade-in duration-1000">
+          <ThemeToggle />
+        </div>
+
+        <div className="w-full max-w-md space-y-8">
+           {/* Mobile Mascot */}
+           <div className="lg:hidden w-40 h-40 md:w-56 md:h-56 mx-auto mb-6 relative animate-float">
+              <Image 
+                src="/panda-login-white.png" 
+                alt="Mascot" 
+                fill
+                className="object-contain"
+              />
+           </div>
+
+           <div className="text-center lg:text-left space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+             <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+               Log in
+             </h2>
+             <p className="text-gray-500 dark:text-slate-400 text-sm">
+               Silakan masuk untuk melanjutkan akses
+             </p>
+           </div>
+
+           {/* Error Display */}
+           {error && (
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 p-4 rounded-2xl flex items-start gap-3 animate-in shake duration-300">
+              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+              <p className="text-sm text-red-600 dark:text-red-400 whitespace-pre-line">{error}</p>
             </div>
-          </div>
+           )}
 
-          {/* Title */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Selamat Datang
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Masuk ke akun Kost Management Anda
-            </p>
-          </div>
-
-          {/* Form */}
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Error Message */}
-              {error && (
-                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
-                  <div className="whitespace-pre-line text-sm leading-relaxed">
-                    {error}
-                  </div>
-                </div>
-              )}
-
-              {/* Username Field */}
+           <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              
               <FormField
                 control={form.control}
                 name="username"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base">Username</FormLabel>
+                  <FormItem className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-backwards">
+                    <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">Username</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Masukkan username"
-                        autoComplete="username"
-                        disabled={isLoading}
-                        className="h-12 text-base"
-                        {...field}
-                      />
+                      <div className="relative group">
+                        <Input 
+                          {...field} 
+                          placeholder="Masukkan username" 
+                          disabled={isLoading}
+                          className="h-14 pl-4 pr-10 rounded-2xl bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 focus:border-orange-500 focus:ring-orange-500 focus:ring-offset-0 transition-all duration-300 shadow-sm group-hover:border-orange-300"
+                        />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-orange-500 transition-colors pointer-events-none duration-300">
+                           <User className="h-5 w-5" />
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Password Field */}
               <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base">Password</FormLabel>
+                  <FormItem className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-backwards">
+                    <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Masukkan password"
-                        autoComplete="current-password"
-                        disabled={isLoading}
-                        className="h-12 text-base"
-                        {...field}
-                      />
+                      <div className="relative group">
+                        <Input 
+                          {...field} 
+                          type="password"
+                          placeholder="Masukkan password" 
+                          disabled={isLoading}
+                          className="h-14 pl-4 pr-10 rounded-2xl bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 focus:border-orange-500 focus:ring-orange-500 focus:ring-offset-0 transition-all duration-300 shadow-sm group-hover:border-orange-300"
+                        />
+                         <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-orange-500 transition-colors pointer-events-none duration-300">
+                           <Lock className="h-5 w-5" />
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Login Button */}
-              <Button
-                type="submit"
-                className="w-full h-12 text-base font-medium"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Memproses...
-                  </>
-                ) : (
-                  "Masuk"
-                )}
-              </Button>
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards pt-2">
+                <Button 
+                    type="submit" 
+                    className="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg rounded-full shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 transition-all duration-300"
+                    disabled={isLoading}
+                >
+                    {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : "Connect"}
+                </Button>
+              </div>
             </form>
-          </Form>
-        </div>
-      </div>
+           </Form>
 
-      {/* Footer */}
-      <div className="pb-8 px-6">
-        <p className="text-center text-xs text-muted-foreground">
-          Sistem Manajemen Kost v1.0
-        </p>
+           {/* Divider */}
+           <div className="relative my-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400 fill-mode-backwards">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-200 dark:border-slate-800" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white dark:bg-slate-950 px-2 text-gray-500 dark:text-gray-400 font-medium tracking-wider">
+                  Or
+                </span>
+              </div>
+           </div>
+
+           {/* Social Buttons (Visual Only) */}
+           <div className="grid grid-cols-1 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 fill-mode-backwards">
+              <Button variant="outline" className="h-14 rounded-full border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-700 hover:scale-[1.02] active:scale-[0.98] transition-all justify-center group" type="button">
+                <span className="mr-2 font-bold text-lg text-red-500 group-hover:scale-110 transition-transform">G</span> <span className="text-gray-700 dark:text-gray-300">Sign in with Google</span>
+              </Button>
+              <Button variant="outline" className="h-14 rounded-full border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-700 hover:scale-[1.02] active:scale-[0.98] transition-all justify-center group" type="button">
+                <span className="mr-2 font-bold text-lg text-blue-600 group-hover:scale-110 transition-transform">f</span> <span className="text-gray-700 dark:text-gray-300">Sign in with Facebook</span>
+              </Button>
+           </div>
+
+           <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-8 animate-in fade-in duration-1000 delay-700">
+             For more information, please see our{" "}
+             <Link href="#" className="underline hover:text-orange-500 transition-colors">Privacy Policy</Link>.
+           </p>
+
+        </div>
       </div>
     </div>
   );
@@ -207,8 +248,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen w-full flex items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="min-h-screen w-full flex items-center justify-center bg-white dark:bg-slate-950">
+          <Loader2 className="h-10 w-10 animate-spin text-orange-500" />
         </div>
       }
     >
