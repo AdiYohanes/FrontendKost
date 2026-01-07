@@ -113,7 +113,9 @@ export function Header({ onMenuClick }: HeaderProps) {
             >
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  {user.name.charAt(0).toUpperCase()}
+                  {user?.name?.charAt(0).toUpperCase() ||
+                    user?.username?.charAt(0).toUpperCase() ||
+                    "U"}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -121,12 +123,14 @@ export function Header({ onMenuClick }: HeaderProps) {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user.name}</p>
+                <p className="text-sm font-medium leading-none">
+                  {user?.name || user?.username || "User"}
+                </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {user.email || user.username}
+                  {user?.email || user?.username || "No email"}
                 </p>
                 <p className="text-xs leading-none text-muted-foreground mt-1">
-                  Role: {user.role}
+                  Role: {user?.role || "PENGHUNI"}
                 </p>
               </div>
             </DropdownMenuLabel>

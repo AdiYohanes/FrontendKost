@@ -183,15 +183,17 @@ export function Sidebar() {
               )}
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                {user.name.charAt(0).toUpperCase()}
+                {user?.name?.charAt(0).toUpperCase() ||
+                  user?.username?.charAt(0).toUpperCase() ||
+                  "U"}
               </div>
               {sidebarOpen && (
                 <div className="flex flex-col overflow-hidden">
                   <span className="text-sm font-medium truncate">
-                    {user.name}
+                    {user?.name || user?.username || "User"}
                   </span>
                   <span className="text-xs text-muted-foreground truncate">
-                    {user.role}
+                    {user?.role || "PENGHUNI"}
                   </span>
                 </div>
               )}

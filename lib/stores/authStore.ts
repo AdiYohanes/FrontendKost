@@ -5,8 +5,9 @@ export interface User {
   id: string;
   username: string;
   role: 'OWNER' | 'PENJAGA' | 'PENGHUNI';
-  name: string;
+  name?: string;
   email?: string;
+  phoneNumber?: string;
 }
 
 interface AuthStore {

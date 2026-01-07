@@ -40,12 +40,12 @@ export enum UserRole {
 export interface User {
   id: string;
   username: string;
-  name: string;
+  name?: string;
   email?: string;
   phoneNumber?: string;
   role: UserRole;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /**
