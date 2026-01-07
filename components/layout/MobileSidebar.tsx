@@ -153,14 +153,16 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
             <div className="p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                  {user.name.charAt(0).toUpperCase()}
+                  {user?.name?.charAt(0).toUpperCase() ||
+                    user?.username?.charAt(0).toUpperCase() ||
+                    "U"}
                 </div>
                 <div className="flex flex-col overflow-hidden">
                   <span className="text-sm font-medium truncate">
-                    {user.name}
+                    {user?.name || user?.username || "User"}
                   </span>
                   <span className="text-xs text-muted-foreground truncate">
-                    {user.role}
+                    {user?.role || "PENGHUNI"}
                   </span>
                 </div>
               </div>
