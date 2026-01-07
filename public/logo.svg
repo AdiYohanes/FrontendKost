@@ -1,0 +1,28 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="60" cy="60" r="58" fill="url(#gradient1)" stroke="url(#gradient2)" stroke-width="4"/>
+  
+  <!-- House Icon -->
+  <path d="M60 25L35 45V75C35 77.7614 37.2386 80 40 80H50V65C50 62.2386 52.2386 60 55 60H65C67.7614 60 70 62.2386 70 65V80H80C82.7614 80 85 77.7614 85 75V45L60 25Z" fill="white" opacity="0.95"/>
+  <path d="M60 20L30 42V75C30 79.9706 34.0294 84 39 84H81C85.9706 84 90 79.9706 90 75V42L60 20Z" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Door -->
+  <rect x="52" y="62" width="16" height="22" rx="2" fill="white" opacity="0.9"/>
+  
+  <!-- Windows -->
+  <rect x="42" y="50" width="10" height="10" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="68" y="50" width="10" height="10" rx="1.5" fill="white" opacity="0.85"/>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="gradient1" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="50%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#86efac"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+</svg>

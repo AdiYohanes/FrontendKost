@@ -56,7 +56,12 @@ apiClient.interceptors.response.use(
           if (typeof window !== 'undefined') {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
+            
+            // Clear token cookie
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            
+            // Redirect to login with session expired message
+            window.location.href = '/login?session=expired';
           }
           break;
         

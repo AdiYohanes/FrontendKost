@@ -42,7 +42,7 @@ export interface User {
   username: string;
   name: string;
   email?: string;
-  phone?: string;
+  phoneNumber?: string;
   role: UserRole;
   createdAt: string;
   updatedAt: string;

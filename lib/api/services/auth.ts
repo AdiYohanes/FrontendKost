@@ -4,7 +4,7 @@
  */
 
 import apiClient from '../client';
-import { AuthResponse, ApiResponse } from '../types';
+import { AuthResponse } from '../types';
 
 export interface LoginCredentials {
   username: string;
@@ -18,11 +18,12 @@ export const authApi = {
    * @returns Auth response with token and user data
    */
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>(
+    const response = await apiClient.post<AuthResponse>(
       '/auth/login',
       credentials
     );
-    return response.data.data;
+    // Backend returns { accessToken, user } directly without wrapper
+    return response.data;
   },
 
   /**

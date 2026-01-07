@@ -49,7 +49,7 @@ export function handleApiError(error: AxiosError<ApiErrorResponse>): string {
     }
   } else if (error.request) {
     // Request made but no response received
-    return 'Network error. Please check your internet connection.';
+    return 'Tidak dapat terhubung ke server. Pastikan:\n• Backend API berjalan di http://localhost:3000\n• Koneksi internet Anda stabil\n• Tidak ada firewall yang memblokir koneksi';
   } else {
     // Error in request setup
     return error.message || 'An unexpected error occurred.';
