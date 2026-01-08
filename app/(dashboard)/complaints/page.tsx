@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { Plus, Search, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,13 +16,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -38,6 +32,7 @@ import { ComplaintStatus, UserRole, Complaint } from "@/lib/api/types";
 
 export default function ComplaintsPage() {
   const { user } = useAuthStore();
+  const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -181,18 +176,20 @@ export default function ComplaintsPage() {
             </div>
 
             {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="OPEN">Open</SelectItem>
-                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                <SelectItem value="RESOLVED">Resolved</SelectItem>
-                <SelectItem value="CLOSED">Closed</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="all">All Status</option>
+                <option value="OPEN">Open</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="RESOLVED">Resolved</option>
+                <option value="CLOSED">Closed</option>
+              </select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -260,79 +257,75 @@ export default function ComplaintsPage() {
                       <TableRow
                         key={complaint.id}
                         className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => router.push(`/complaints/${complaint.id}`)}
                       >
-                        <Link
-                          href={`/complaints/${complaint.id}`}
-                          className="contents"
-                        >
-                          {/* ID */}
-                          <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-                            #{String(index + 1).padStart(3, "0")}
-                          </TableCell>
+                        {/* ID */}
+                        <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                          #{String(index + 1).padStart(3, "0")}
+                        </TableCell>
 
-                          {/* Resident Info (only for staff/owner) */}
-                          {user?.role !== UserRole.PENGHUNI && (
-                            <TableCell className="min-w-[150px]">
-                              <div className="flex flex-col">
-                                <span className="font-medium whitespace-nowrap">
-                                  {complaint.resident?.user?.name ||
-                                    complaint.resident?.user?.username ||
-                                    "N/A"}
-                                </span>
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                  Room{" "}
-                                  {complaint.resident?.room?.roomNumber ||
-                                    "N/A"}
-                                </span>
-                              </div>
-                            </TableCell>
-                          )}
-
-                          {/* Title */}
-                          <TableCell className="min-w-[200px]">
+                        {/* Resident Info (only for staff/owner) */}
+                        {user?.role !== UserRole.PENGHUNI && (
+                          <TableCell className="min-w-[150px]">
                             <div className="flex flex-col">
-                              <span className="font-medium line-clamp-1">
-                                {complaint.title}
+                              <span className="font-medium whitespace-nowrap">
+                                {complaint.resident?.user?.name ||
+                                  complaint.resident?.user?.username ||
+                                  "N/A"}
                               </span>
-                              <span className="text-xs text-muted-foreground line-clamp-1">
-                                {complaint.description}
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                Room{" "}
+                                {complaint.resident?.room?.roomNumber ||
+                                  "N/A"}
                               </span>
                             </div>
                           </TableCell>
+                        )}
 
-                          {/* Status */}
-                          <TableCell className="text-center">
-                            <Badge
-                              className={`${statusBadge.className} whitespace-nowrap`}
+                        {/* Title */}
+                        <TableCell className="min-w-[200px]">
+                          <div className="flex flex-col">
+                            <span className="font-medium line-clamp-1">
+                              {complaint.title}
+                            </span>
+                            <span className="text-xs text-muted-foreground line-clamp-1">
+                              {complaint.description}
+                            </span>
+                          </div>
+                        </TableCell>
+
+                        {/* Status */}
+                        <TableCell className="text-center">
+                          <Badge
+                            className={`${statusBadge.className} whitespace-nowrap`}
+                          >
+                            {statusBadge.label}
+                          </Badge>
+                        </TableCell>
+
+                        {/* Priority */}
+                        <TableCell className="text-center">
+                          {priority.show && (
+                            <div
+                              className={`flex items-center justify-center gap-1 ${priority.className}`}
                             >
-                              {statusBadge.label}
-                            </Badge>
-                          </TableCell>
+                              <AlertCircle className="h-4 w-4" />
+                              <span className="text-xs font-medium whitespace-nowrap">
+                                {priority.label}
+                              </span>
+                            </div>
+                          )}
+                        </TableCell>
 
-                          {/* Priority */}
-                          <TableCell className="text-center">
-                            {priority.show && (
-                              <div
-                                className={`flex items-center justify-center gap-1 ${priority.className}`}
-                              >
-                                <AlertCircle className="h-4 w-4" />
-                                <span className="text-xs font-medium whitespace-nowrap">
-                                  {priority.label}
-                                </span>
-                              </div>
-                            )}
-                          </TableCell>
-
-                          {/* Created Date */}
-                          <TableCell className="text-right text-sm text-muted-foreground whitespace-nowrap">
-                            {complaint.createdAt
-                              ? format(
-                                  new Date(complaint.createdAt),
-                                  "dd MMM yyyy"
-                                )
-                              : "N/A"}
-                          </TableCell>
-                        </Link>
+                        {/* Created Date */}
+                        <TableCell className="text-right text-sm text-muted-foreground whitespace-nowrap">
+                          {complaint.createdAt
+                            ? format(
+                                new Date(complaint.createdAt),
+                                "dd MMM yyyy"
+                              )
+                            : "N/A"}
+                        </TableCell>
                       </TableRow>
                     );
                   })}

@@ -8,13 +8,6 @@ import { Room, RoomStatus } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -150,21 +143,17 @@ export function RoomForm({ room, onSubmit, isSubmitting }: RoomFormProps) {
             <Label htmlFor="status">
               Status <span className="text-destructive">*</span>
             </Label>
-            <Select
+            <select
+              id="status"
               value={status}
-              onValueChange={(value) => setValue("status", value as RoomStatus)}
+              onChange={(e) => setValue("status", e.target.value as RoomStatus)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={RoomStatus.AVAILABLE}>Available</SelectItem>
-                <SelectItem value={RoomStatus.OCCUPIED}>Occupied</SelectItem>
-                <SelectItem value={RoomStatus.MAINTENANCE}>
-                  Maintenance
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <option value="">Select status</option>
+              <option value={RoomStatus.AVAILABLE}>Available</option>
+              <option value={RoomStatus.OCCUPIED}>Occupied</option>
+              <option value={RoomStatus.MAINTENANCE}>Maintenance</option>
+            </select>
             {errors.status && (
               <p className="text-sm text-destructive">
                 {errors.status.message}

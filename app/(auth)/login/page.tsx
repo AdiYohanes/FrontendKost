@@ -213,7 +213,7 @@ function LoginForm() {
                   {isLoading ? (
                     <Loader2 className="h-6 w-6 animate-spin" />
                   ) : (
-                    "Connect"
+                    "Login"
                   )}
                 </Button>
               </div>

@@ -25,13 +25,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
 import {
@@ -385,38 +378,31 @@ export default function LaundryDetailPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>New Status</Label>
-              <Select
+              <select
                 value={selectedStatus}
-                onValueChange={(value) =>
-                  setSelectedStatus(value as LaundryStatus)
-                }
+                onChange={(e) => setSelectedStatus(e.target.value as LaundryStatus)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select new status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {transaction.status === "PENDING" && (
-                    <>
-                      <SelectItem value="ON_PROCESS">On Process</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                    </>
-                  )}
-                  {transaction.status === "ON_PROCESS" && (
-                    <>
-                      <SelectItem value="READY_TO_PICKUP">
-                        Ready to Pickup
-                      </SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                    </>
-                  )}
-                  {transaction.status === "READY_TO_PICKUP" && (
-                    <>
-                      <SelectItem value="COMPLETED">Completed</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+                <option value="">Select new status</option>
+                {transaction.status === "PENDING" && (
+                  <>
+                    <option value="ON_PROCESS">On Process</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </>
+                )}
+                {transaction.status === "ON_PROCESS" && (
+                  <>
+                    <option value="READY_TO_PICKUP">Ready to Pickup</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </>
+                )}
+                {transaction.status === "READY_TO_PICKUP" && (
+                  <>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </>
+                )}
+              </select>
             </div>
             {selectedStatus === "COMPLETED" &&
               transaction.paymentStatus === "UNPAID" && (
@@ -456,20 +442,15 @@ export default function LaundryDetailPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Payment Status</Label>
-              <Select
+              <select
                 value={selectedPayment}
-                onValueChange={(value) =>
-                  setSelectedPayment(value as LaundryPaymentStatus)
-                }
+                onChange={(e) => setSelectedPayment(e.target.value as LaundryPaymentStatus)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select payment status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="UNPAID">Unpaid</SelectItem>
-                  <SelectItem value="PAID">Paid</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="">Select payment status</option>
+                <option value="UNPAID">Unpaid</option>
+                <option value="PAID">Paid</option>
+              </select>
             </div>
           </div>
           <DialogFooter>

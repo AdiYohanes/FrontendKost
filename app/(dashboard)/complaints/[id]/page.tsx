@@ -26,13 +26,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -196,20 +189,21 @@ export default function ComplaintDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground">Submitted By</p>
               <p className="font-medium">
-                {complaint.resident.user.name ||
-                  complaint.resident.user.username}
+                {complaint.resident?.user?.name ||
+                  complaint.resident?.user?.username ||
+                  "N/A"}
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Room</p>
               <p className="font-medium">
-                {complaint.resident.room.roomNumber}
+                {complaint.resident?.room?.roomNumber || "N/A"}
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Contact</p>
               <p className="font-medium">
-                {complaint.resident.user.phoneNumber || "N/A"}
+                {complaint.resident?.user?.phoneNumber || "N/A"}
               </p>
             </div>
             <div>
@@ -352,33 +346,28 @@ export default function ComplaintDetailPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>New Status</Label>
-              <Select
+              <select
                 value={selectedStatus}
-                onValueChange={(value) =>
-                  setSelectedStatus(value as ComplaintStatus)
-                }
+                onChange={(e) => setSelectedStatus(e.target.value as ComplaintStatus)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select new status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {complaint.status === "OPEN" && (
-                    <>
-                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                      <SelectItem value="CLOSED">Closed</SelectItem>
-                    </>
-                  )}
-                  {complaint.status === "IN_PROGRESS" && (
-                    <>
-                      <SelectItem value="RESOLVED">Resolved</SelectItem>
-                      <SelectItem value="CLOSED">Closed</SelectItem>
-                    </>
-                  )}
-                  {complaint.status === "RESOLVED" && (
-                    <SelectItem value="CLOSED">Closed</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+                <option value="">Select new status</option>
+                {complaint.status === "OPEN" && (
+                  <>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="CLOSED">Closed</option>
+                  </>
+                )}
+                {complaint.status === "IN_PROGRESS" && (
+                  <>
+                    <option value="RESOLVED">Resolved</option>
+                    <option value="CLOSED">Closed</option>
+                  </>
+                )}
+                {complaint.status === "RESOLVED" && (
+                  <option value="CLOSED">Closed</option>
+                )}
+              </select>
             </div>
             <div className="space-y-2">
               <Label>Resolution Notes (Optional)</Label>

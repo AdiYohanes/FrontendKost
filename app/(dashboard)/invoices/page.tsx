@@ -8,13 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Plus,
   Search,
   Eye,
@@ -300,17 +293,18 @@ export default function InvoicesPage() {
               className="pl-10 h-12 md:h-14 rounded-2xl bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 cursor-pointer"
             />
           </div>
-          <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-            <SelectTrigger className="w-full md:w-[200px] h-12 md:h-14 rounded-2xl bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 cursor-pointer">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent className="rounded-2xl">
-              <SelectItem value="all">All Invoices</SelectItem>
-              <SelectItem value="UNPAID">Unpaid</SelectItem>
-              <SelectItem value="PAID">Paid</SelectItem>
-              <SelectItem value="PARTIAL">Partial</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-full md:w-[200px]">
+            <select
+              value={statusFilter}
+              onChange={(e) => handleStatusFilterChange(e.target.value)}
+              className="flex h-12 md:h-14 w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="all">All Invoices</option>
+              <option value="UNPAID">Unpaid</option>
+              <option value="PAID">Paid</option>
+              <option value="PARTIAL">Partial</option>
+            </select>
+          </div>
         </div>
       </Card>
 
