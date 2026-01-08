@@ -1,97 +1,55 @@
 /**
- * Query keys for Tanstack Query
- * Organized by entity for better cache management
+ * Query Keys
+ * Centralized query key definitions for Tanstack Query
  */
 
 export const queryKeys = {
-  // Authentication
   auth: {
     user: ['auth', 'user'] as const,
   },
-
-  // Rooms
   rooms: {
     all: ['rooms'] as const,
-    lists: () => [...queryKeys.rooms.all, 'list'] as const,
-    list: (filters?: Record<string, unknown>) =>
-      [...queryKeys.rooms.lists(), filters] as const,
-    details: () => [...queryKeys.rooms.all, 'detail'] as const,
-    detail: (id: string) => [...queryKeys.rooms.details(), id] as const,
+    detail: (id: string) => ['rooms', id] as const,
   },
-
-  // Residents
   residents: {
-    all: ['residents'] as const,
-    lists: () => [...queryKeys.residents.all, 'list'] as const,
-    list: (filters?: Record<string, unknown>) =>
-      [...queryKeys.residents.lists(), filters] as const,
-    details: () => [...queryKeys.residents.all, 'detail'] as const,
-    detail: (id: string) => [...queryKeys.residents.details(), id] as const,
+    all: (params?: { isActive?: boolean }) => ['residents', params] as const,
+    detail: (id: string) => ['residents', id] as const,
   },
-
-  // Utilities
   utilities: {
-    all: ['utilities'] as const,
-    lists: () => [...queryKeys.utilities.all, 'list'] as const,
-    list: (filters?: Record<string, unknown>) =>
-      [...queryKeys.utilities.lists(), filters] as const,
-    details: () => [...queryKeys.utilities.all, 'detail'] as const,
-    detail: (id: string) => [...queryKeys.utilities.details(), id] as const,
-    byResident: (residentId: string) =>
-      [...queryKeys.utilities.all, 'resident', residentId] as const,
+    byResident: (
+      residentId: string,
+      params?: { utilityType?: string; isBilled?: boolean }
+    ) => ['utilities', 'resident', residentId, params] as const,
   },
-
-  // Invoices
   invoices: {
-    all: ['invoices'] as const,
-    lists: () => [...queryKeys.invoices.all, 'list'] as const,
-    list: (filters?: Record<string, unknown>) =>
-      [...queryKeys.invoices.lists(), filters] as const,
-    details: () => [...queryKeys.invoices.all, 'detail'] as const,
-    detail: (id: string) => [...queryKeys.invoices.details(), id] as const,
+    all: (params?: { paymentStatus?: string }) => ['invoices', params] as const,
+    byResident: (residentId: string, params?: { paymentStatus?: string }) =>
+      ['invoices', 'resident', residentId, params] as const,
+    detail: (id: string) => ['invoices', id] as const,
   },
-
-  // Laundry
   laundry: {
-    all: ['laundry'] as const,
-    lists: () => [...queryKeys.laundry.all, 'list'] as const,
-    list: (filters?: Record<string, unknown>) =>
-      [...queryKeys.laundry.lists(), filters] as const,
-    details: () => [...queryKeys.laundry.all, 'detail'] as const,
-    detail: (id: string) => [...queryKeys.laundry.details(), id] as const,
+    all: (params?: { status?: string; paymentStatus?: string }) =>
+      ['laundry', params] as const,
+    byResident: (residentId: string) =>
+      ['laundry', 'resident', residentId] as const,
   },
-
-  // Complaints
   complaints: {
-    all: ['complaints'] as const,
-    lists: () => [...queryKeys.complaints.all, 'list'] as const,
-    list: (filters?: Record<string, unknown>) =>
-      [...queryKeys.complaints.lists(), filters] as const,
-    details: () => [...queryKeys.complaints.all, 'detail'] as const,
-    detail: (id: string) => [...queryKeys.complaints.details(), id] as const,
+    all: (params?: { status?: string }) => ['complaints', params] as const,
+    detail: (id: string) => ['complaints', id] as const,
   },
-
-  // Fridge
   fridge: {
     all: ['fridge'] as const,
-    items: () => [...queryKeys.fridge.all, 'items'] as const,
   },
-
-  // Expenses
   expenses: {
-    all: ['expenses'] as const,
-    lists: () => [...queryKeys.expenses.all, 'list'] as const,
-    list: (filters?: Record<string, unknown>) =>
-      [...queryKeys.expenses.lists(), filters] as const,
-    details: () => [...queryKeys.expenses.all, 'detail'] as const,
-    detail: (id: string) => [...queryKeys.expenses.details(), id] as const,
-    summary: () => [...queryKeys.expenses.all, 'summary'] as const,
+    all: (params?: {
+      category?: string;
+      startDate?: string;
+      endDate?: string;
+    }) => ['expenses', params] as const,
+    detail: (id: string) => ['expenses', id] as const,
   },
-
-  // Reports
   reports: {
-    all: ['reports'] as const,
-    financial: (dateRange?: { start: string; end: string }) =>
-      [...queryKeys.reports.all, 'financial', dateRange] as const,
+    financial: (startDate: string, endDate: string) =>
+      ['reports', 'financial', startDate, endDate] as const,
   },
-} as const;
+};

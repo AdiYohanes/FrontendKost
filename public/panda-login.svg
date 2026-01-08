@@ -1,0 +1,73 @@
+<svg width="500" height="500" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Panda Character -->
+  
+  <!-- Left Ear -->
+  <ellipse cx="150" cy="120" rx="50" ry="60" fill="#2D3748"/>
+  
+  <!-- Right Ear -->
+  <ellipse cx="350" cy="120" rx="50" ry="60" fill="#2D3748"/>
+  
+  <!-- Head -->
+  <circle cx="250" cy="200" r="120" fill="#F7FAFC"/>
+  
+  <!-- Left Eye Patch -->
+  <ellipse cx="200" cy="180" rx="35" ry="45" fill="#2D3748"/>
+  
+  <!-- Right Eye Patch -->
+  <ellipse cx="300" cy="180" rx="35" ry="45" fill="#2D3748"/>
+  
+  <!-- Left Eye -->
+  <circle cx="200" cy="185" r="15" fill="#FFFFFF"/>
+  <circle cx="205" cy="185" r="8" fill="#2D3748"/>
+  <circle cx="207" cy="182" r="3" fill="#FFFFFF"/>
+  
+  <!-- Right Eye -->
+  <circle cx="300" cy="185" r="15" fill="#FFFFFF"/>
+  <circle cx="305" cy="185" r="8" fill="#2D3748"/>
+  <circle cx="307" cy="182" r="3" fill="#FFFFFF"/>
+  
+  <!-- Nose -->
+  <ellipse cx="250" cy="220" rx="15" ry="12" fill="#2D3748"/>
+  
+  <!-- Mouth -->
+  <path d="M 250 220 Q 230 240 220 235" stroke="#2D3748" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 250 220 Q 270 240 280 235" stroke="#2D3748" stroke-width="3" fill="none" stroke-linecap="round"/>
+  
+  <!-- Body -->
+  <ellipse cx="250" cy="380" rx="100" ry="110" fill="#F7FAFC"/>
+  
+  <!-- Belly -->
+  <ellipse cx="250" cy="390" rx="70" ry="80" fill="#FFFFFF"/>
+  
+  <!-- Left Arm -->
+  <ellipse cx="170" cy="350" rx="35" ry="70" fill="#2D3748" transform="rotate(-20 170 350)"/>
+  
+  <!-- Right Arm -->
+  <ellipse cx="330" cy="350" rx="35" ry="70" fill="#2D3748" transform="rotate(20 330 350)"/>
+  
+  <!-- Left Leg -->
+  <ellipse cx="210" cy="460" rx="40" ry="50" fill="#2D3748"/>
+  
+  <!-- Right Leg -->
+  <ellipse cx="290" cy="460" rx="40" ry="50" fill="#2D3748"/>
+  
+  <!-- Bamboo Stick (Optional decoration) -->
+  <rect x="380" y="280" width="15" height="150" rx="7" fill="#4A5568"/>
+  <rect x="380" y="280" width="15" height="40" rx="7" fill="#68D391"/>
+  <rect x="380" y="340" width="15" height="40" rx="7" fill="#68D391"/>
+  <line x1="380" y1="300" x2="395" y2="300" stroke="#2D3748" stroke-width="2"/>
+  <line x1="380" y1="320" x2="395" y2="320" stroke="#2D3748" stroke-width="2"/>
+  <line x1="380" y1="360" x2="395" y2="360" stroke="#2D3748" stroke-width="2"/>
+  <line x1="380" y1="380" x2="395" y2="380" stroke="#2D3748" stroke-width="2"/>
+  
+  <!-- Blush (cute detail) -->
+  <ellipse cx="160" cy="210" rx="20" ry="12" fill="#FBB6CE" opacity="0.6"/>
+  <ellipse cx="340" cy="210" rx="20" ry="12" fill="#FBB6CE" opacity="0.6"/>
+  
+  <!-- Sparkles for cuteness -->
+  <g opacity="0.8">
+    <path d="M 100 150 L 105 155 L 100 160 L 95 155 Z" fill="#FBD38D"/>
+    <path d="M 400 180 L 405 185 L 400 190 L 395 185 Z" fill="#FBD38D"/>
+    <path d="M 120 350 L 123 353 L 120 356 L 117 353 Z" fill="#FBD38D"/>
+  </g>
+</svg>

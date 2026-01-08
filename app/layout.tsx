@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { QueryProvider } from "@/lib/query";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -103,6 +104,7 @@ export default function RootLayout({
         <QueryProvider>
           {children}
           <PWAInstallPrompt />
+          <Toaster />
         </QueryProvider>
       </body>
     </html>

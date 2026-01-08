@@ -1,0 +1,117 @@
+<svg width="500" height="500" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Modern Panda Mascot with Laptop -->
+  
+  <!-- Shadow -->
+  <ellipse cx="250" cy="480" rx="120" ry="20" fill="#000000" opacity="0.1"/>
+  
+  <!-- Left Ear -->
+  <circle cx="160" cy="130" r="45" fill="#1A202C"/>
+  <circle cx="160" cy="135" r="20" fill="#2D3748"/>
+  
+  <!-- Right Ear -->
+  <circle cx="340" cy="130" r="45" fill="#1A202C"/>
+  <circle cx="340" cy="135" r="20" fill="#2D3748"/>
+  
+  <!-- Head -->
+  <circle cx="250" cy="200" r="110" fill="#F7FAFC"/>
+  <circle cx="250" cy="200" r="105" fill="#FFFFFF"/>
+  
+  <!-- Left Eye Patch -->
+  <ellipse cx="210" cy="190" rx="32" ry="40" fill="#1A202C"/>
+  
+  <!-- Right Eye Patch -->
+  <ellipse cx="290" cy="190" rx="32" ry="40" fill="#1A202C"/>
+  
+  <!-- Left Eye -->
+  <circle cx="210" cy="195" r="12" fill="#FFFFFF"/>
+  <circle cx="213" cy="195" r="7" fill="#1A202C"/>
+  <circle cx="215" cy="193" r="2.5" fill="#FFFFFF"/>
+  
+  <!-- Right Eye -->
+  <circle cx="290" cy="195" r="12" fill="#FFFFFF"/>
+  <circle cx="293" cy="195" r="7" fill="#1A202C"/>
+  <circle cx="295" cy="193" r="2.5" fill="#FFFFFF"/>
+  
+  <!-- Happy Expression Lines -->
+  <path d="M 195 200 Q 200 205 205 200" stroke="#1A202C" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 275 200 Q 280 205 285 200" stroke="#1A202C" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Nose -->
+  <ellipse cx="250" cy="220" rx="12" ry="10" fill="#1A202C"/>
+  
+  <!-- Smile -->
+  <path d="M 230 235 Q 250 250 270 235" stroke="#1A202C" stroke-width="3" fill="none" stroke-linecap="round"/>
+  
+  <!-- Body -->
+  <ellipse cx="250" cy="360" rx="95" ry="100" fill="#F7FAFC"/>
+  <ellipse cx="250" cy="360" rx="90" ry="95" fill="#FFFFFF"/>
+  
+  <!-- Belly Patch -->
+  <ellipse cx="250" cy="370" rx="60" ry="70" fill="#F7FAFC"/>
+  
+  <!-- Left Arm -->
+  <ellipse cx="175" cy="330" rx="30" ry="65" fill="#1A202C" transform="rotate(-15 175 330)"/>
+  
+  <!-- Right Arm -->
+  <ellipse cx="325" cy="330" rx="30" ry="65" fill="#1A202C" transform="rotate(15 325 330)"/>
+  
+  <!-- Laptop -->
+  <g>
+    <!-- Laptop Base -->
+    <rect x="200" y="380" width="100" height="8" rx="2" fill="#4A5568"/>
+    <rect x="195" y="388" width="110" height="4" rx="2" fill="#2D3748"/>
+    
+    <!-- Laptop Screen -->
+    <rect x="210" y="320" width="80" height="60" rx="3" fill="#2D3748"/>
+    <rect x="215" y="325" width="70" height="50" rx="2" fill="#4299E1"/>
+    
+    <!-- Screen Content (Code) -->
+    <line x1="220" y1="332" x2="245" y2="332" stroke="#FFFFFF" stroke-width="1.5" opacity="0.8"/>
+    <line x1="220" y1="338" x2="260" y2="338" stroke="#48BB78" stroke-width="1.5" opacity="0.8"/>
+    <line x1="225" y1="344" x2="270" y2="344" stroke="#FFFFFF" stroke-width="1.5" opacity="0.8"/>
+    <line x1="220" y1="350" x2="255" y2="350" stroke="#F6AD55" stroke-width="1.5" opacity="0.8"/>
+    <line x1="225" y1="356" x2="265" y2="356" stroke="#FFFFFF" stroke-width="1.5" opacity="0.8"/>
+    <line x1="220" y1="362" x2="250" y2="362" stroke="#9F7AEA" stroke-width="1.5" opacity="0.8"/>
+    
+    <!-- Keyboard Indicator -->
+    <circle cx="250" cy="384" r="1.5" fill="#68D391"/>
+  </g>
+  
+  <!-- Left Leg -->
+  <ellipse cx="215" cy="445" rx="35" ry="45" fill="#1A202C"/>
+  <ellipse cx="215" cy="470" rx="38" ry="20" fill="#2D3748"/>
+  
+  <!-- Right Leg -->
+  <ellipse cx="285" cy="445" rx="35" ry="45" fill="#1A202C"/>
+  <ellipse cx="285" cy="470" rx="38" ry="20" fill="#2D3748"/>
+  
+  <!-- Blush -->
+  <ellipse cx="170" cy="215" rx="18" ry="10" fill="#FC8181" opacity="0.5"/>
+  <ellipse cx="330" cy="215" rx="18" ry="10" fill="#FC8181" opacity="0.5"/>
+  
+  <!-- Decorative Elements -->
+  <g opacity="0.7">
+    <!-- Stars -->
+    <path d="M 80 180 L 83 185 L 88 186 L 84 190 L 85 195 L 80 192 L 75 195 L 76 190 L 72 186 L 77 185 Z" fill="#F6AD55"/>
+    <path d="M 420 220 L 423 225 L 428 226 L 424 230 L 425 235 L 420 232 L 415 235 L 416 230 L 412 226 L 417 225 Z" fill="#F6AD55"/>
+    <path d="M 100 380 L 102 383 L 105 384 L 103 386 L 104 389 L 100 387 L 96 389 L 97 386 L 95 384 L 98 383 Z" fill="#9F7AEA"/>
+    
+    <!-- Sparkles -->
+    <circle cx="400" cy="160" r="3" fill="#FBD38D" opacity="0.8"/>
+    <circle cx="90" cy="300" r="2.5" fill="#FBD38D" opacity="0.8"/>
+    <circle cx="410" cy="350" r="2" fill="#FBD38D" opacity="0.8"/>
+  </g>
+  
+  <!-- Coffee Cup (Optional) -->
+  <g transform="translate(350, 380)">
+    <rect x="0" y="10" width="30" height="35" rx="3" fill="#ED8936"/>
+    <ellipse cx="15" cy="10" rx="15" ry="5" fill="#F6AD55"/>
+    <rect x="5" y="15" width="20" height="25" rx="2" fill="#C05621"/>
+    <!-- Steam -->
+    <path d="M 8 5 Q 6 0 8 -5" stroke="#CBD5E0" stroke-width="1.5" fill="none" opacity="0.6" stroke-linecap="round"/>
+    <path d="M 15 3 Q 13 -2 15 -7" stroke="#CBD5E0" stroke-width="1.5" fill="none" opacity="0.6" stroke-linecap="round"/>
+    <path d="M 22 5 Q 20 0 22 -5" stroke="#CBD5E0" stroke-width="1.5" fill="none" opacity="0.6" stroke-linecap="round"/>
+    <!-- Handle -->
+    <path d="M 30 20 Q 40 20 40 30 Q 40 40 30 40" stroke="#ED8936" stroke-width="3" fill="none"/>
+  </g>
+</svg>

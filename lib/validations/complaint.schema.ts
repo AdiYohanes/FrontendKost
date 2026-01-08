@@ -16,7 +16,7 @@ export const complaintSchema = z.object({
     .min(1, 'Description is required')
     .min(10, 'Description must be at least 10 characters')
     .max(1000, 'Description must be at most 1000 characters'),
-  photos: z.array(z.string()).optional().default([]),
+  photos: z.array(z.string()),
 });
 
 export type ComplaintFormData = z.infer<typeof complaintSchema>;

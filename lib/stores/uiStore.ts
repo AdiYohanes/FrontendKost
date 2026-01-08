@@ -9,6 +9,7 @@ interface UIStore {
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   setTheme: (theme: Theme) => void;
+  initializeSidebar: () => void;
 }
 
 export const useUIStore = create<UIStore>()(
@@ -39,6 +40,16 @@ export const useUIStore = create<UIStore>()(
             root.classList.add(systemTheme);
           } else {
             root.classList.add(theme);
+          }
+        }
+      },
+
+      initializeSidebar: () => {
+        // Auto-open sidebar on desktop (>= 1024px)
+        if (typeof window !== 'undefined') {
+          const isDesktop = window.innerWidth >= 1024;
+          if (isDesktop) {
+            set({ sidebarOpen: true });
           }
         }
       },

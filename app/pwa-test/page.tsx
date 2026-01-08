@@ -12,10 +12,7 @@ export default function PWATestPage() {
   const [swRegistration, setSwRegistration] = useState<
     ServiceWorkerRegistration | undefined
   >();
-  const isInstalled =
-    typeof window !== "undefined"
-      ? window.matchMedia("(display-mode: standalone)").matches
-      : false;
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -23,6 +20,9 @@ export default function PWATestPage() {
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
+    // Check if installed as PWA
+    setIsInstalled(window.matchMedia("(display-mode: standalone)").matches);
 
     // Check service worker
     if ("serviceWorker" in navigator) {
@@ -123,23 +123,45 @@ export default function PWATestPage() {
             <div className="flex items-center gap-2">
               <span>Service Worker:</span>
               <Badge
-                variant={"serviceWorker" in navigator ? "default" : "secondary"}
+                variant={
+                  typeof navigator !== "undefined" &&
+                  "serviceWorker" in navigator
+                    ? "default"
+                    : "secondary"
+                }
               >
-                {"serviceWorker" in navigator ? "Supported" : "Not Supported"}
+                {typeof navigator !== "undefined" &&
+                "serviceWorker" in navigator
+                  ? "Supported"
+                  : "Not Supported"}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
               <span>Cache API:</span>
-              <Badge variant={"caches" in window ? "default" : "secondary"}>
-                {"caches" in window ? "Supported" : "Not Supported"}
+              <Badge
+                variant={
+                  typeof window !== "undefined" && "caches" in window
+                    ? "default"
+                    : "secondary"
+                }
+              >
+                {typeof window !== "undefined" && "caches" in window
+                  ? "Supported"
+                  : "Not Supported"}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
               <span>Notifications:</span>
               <Badge
-                variant={"Notification" in window ? "default" : "secondary"}
+                variant={
+                  typeof window !== "undefined" && "Notification" in window
+                    ? "default"
+                    : "secondary"
+                }
               >
-                {"Notification" in window ? "Supported" : "Not Supported"}
+                {typeof window !== "undefined" && "Notification" in window
+                  ? "Supported"
+                  : "Not Supported"}
               </Badge>
             </div>
           </div>

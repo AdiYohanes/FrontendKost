@@ -39,17 +39,30 @@ export function ThemeToggle() {
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="icon"
       onClick={toggleTheme}
-      className="rounded-md hover:bg-accent transition-colors"
+      className="relative rounded-full border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-110 active:scale-95 cursor-pointer flex items-center justify-center"
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      {isDark ? (
-        <Sun className="h-5 w-5 text-foreground" />
-      ) : (
-        <Moon className="h-5 w-5 text-foreground" />
-      )}
+      {/* Sun and Moon with rotation animation */}
+      <div className="relative h-5 w-5 flex items-center justify-center">
+        <Sun
+          className={`absolute h-5 w-5 text-[#1baa56] transition-all duration-500 ${
+            isDark
+              ? "rotate-90 scale-0 opacity-0"
+              : "rotate-0 scale-100 opacity-100"
+          }`}
+        />
+        <Moon
+          className={`absolute h-5 w-5 text-blue-500 transition-all duration-500 ${
+            isDark
+              ? "rotate-0 scale-100 opacity-100"
+              : "-rotate-90 scale-0 opacity-0"
+          }`}
+        />
+      </div>
     </Button>
   );
 }
+

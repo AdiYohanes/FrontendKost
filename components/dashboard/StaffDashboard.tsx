@@ -24,28 +24,28 @@ export function StaffDashboard() {
       label: "Active Residents",
       value: "18",
       subtext: "All residents",
-      color: "bg-blue-100 text-blue-600",
+      color: "bg-[#1baa56]/10 text-[#1baa56]",
     },
     {
       icon: AlertCircle,
       label: "Open Complaints",
       value: "3",
       subtext: "Need attention",
-      color: "bg-red-100 text-red-600",
+      color: "bg-[#1baa56]/10 text-[#1baa56]",
     },
     {
       icon: Shirt,
       label: "Laundry Orders",
       value: "7",
       subtext: "In progress",
-      color: "bg-purple-100 text-purple-600",
+      color: "bg-[#1baa56]/10 text-[#1baa56]",
     },
     {
       icon: ClipboardList,
       label: "Pending Tasks",
       value: "12",
       subtext: "Today's tasks",
-      color: "bg-orange-100 text-orange-600",
+      color: "bg-[#1baa56]/10 text-[#1baa56]",
     },
   ];
 
@@ -57,7 +57,7 @@ export function StaffDashboard() {
       priority: "high",
       dueTime: "Today, 2:00 PM",
       icon: Droplet,
-      color: "bg-blue-500",
+      color: "bg-[#1baa56]",
     },
     {
       id: 2,
@@ -66,7 +66,7 @@ export function StaffDashboard() {
       priority: "high",
       dueTime: "Today, 2:00 PM",
       icon: Zap,
-      color: "bg-yellow-500",
+      color: "bg-[#1baa56]",
     },
     {
       id: 3,
@@ -75,7 +75,7 @@ export function StaffDashboard() {
       priority: "medium",
       dueTime: "Today, 4:00 PM",
       icon: Shirt,
-      color: "bg-purple-500",
+      color: "bg-[#1baa56]",
     },
     {
       id: 4,
@@ -84,7 +84,7 @@ export function StaffDashboard() {
       priority: "medium",
       dueTime: "Tomorrow, 10:00 AM",
       icon: Home,
-      color: "bg-orange-500",
+      color: "bg-[#1baa56]",
     },
     {
       id: 5,
@@ -93,7 +93,7 @@ export function StaffDashboard() {
       priority: "low",
       dueTime: "Today, 5:00 PM",
       icon: CheckCircle,
-      color: "bg-green-500",
+      color: "bg-gray-500",
     },
   ];
 
@@ -132,84 +132,87 @@ export function StaffDashboard() {
       label: "Record Utility",
       icon: Droplet,
       href: "/dashboard/utilities/new",
-      color: "bg-blue-500 hover:bg-blue-600",
     },
     {
       label: "Add Laundry Order",
       icon: Shirt,
       href: "/dashboard/laundry/new",
-      color: "bg-purple-500 hover:bg-purple-600",
     },
     {
       label: "Onboard Resident",
       icon: Users,
       href: "/dashboard/residents/new",
-      color: "bg-green-500 hover:bg-green-600",
     },
     {
       label: "View Complaints",
       icon: AlertCircle,
       href: "/dashboard/complaints",
-      color: "bg-orange-500 hover:bg-orange-600",
     },
   ];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-700";
+        return "bg-[#1baa56]/10 text-orange-700 dark:bg-[#148041]/30 dark:text-[#1baa56]";
       case "medium":
-        return "bg-yellow-100 text-yellow-700";
+        return "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-400";
       case "low":
-        return "bg-blue-100 text-blue-700";
+        return "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-400";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-400";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "OPEN":
-        return "bg-red-100 text-red-700";
+        return "bg-[#1baa56]/10 text-orange-700 dark:bg-[#148041]/30 dark:text-[#1baa56]";
       case "IN_PROGRESS":
-        return "bg-yellow-100 text-yellow-700";
+        return "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-400";
       case "RESOLVED":
-        return "bg-green-100 text-green-700";
+        return "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-400";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-400";
     }
   };
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-6 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Staff Dashboard</h1>
-        <p className="text-muted-foreground">
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+          Staff Dashboard
+        </h1>
+        <p className="text-gray-500 dark:text-slate-400 text-lg mt-2">
           Manage daily operations and resident services
         </p>
       </div>
 
       {/* Operational Metrics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-backwards">
         {operationalMetrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
-            <Card key={index}>
+            <Card
+              key={index}
+              className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+            >
               <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
-                      {metric.label}
-                    </p>
-                    <p className="text-2xl font-bold">{metric.value}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {metric.subtext}
-                    </p>
-                  </div>
-                  <div className={`rounded-lg p-3 ${metric.color}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`rounded-2xl p-3 ${metric.color}`}>
                     <Icon className="h-6 w-6" />
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500 dark:text-slate-400">
+                    {metric.label}
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {metric.value}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-slate-400">
+                    {metric.subtext}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -221,11 +224,17 @@ export function StaffDashboard() {
         {/* Left Column - Main Content */}
         <div className="space-y-6 lg:col-span-2">
           {/* Pending Tasks */}
-          <Card>
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-backwards">
             <CardContent className="p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Pending Tasks</h2>
-                <Button variant="outline" size="sm">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  Pending Tasks
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                >
                   View All
                 </Button>
               </div>
@@ -235,16 +244,16 @@ export function StaffDashboard() {
                   return (
                     <div
                       key={task.id}
-                      className="flex items-start gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/50"
+                      className="flex items-start gap-4 rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
                     >
                       <div
-                        className={`rounded-lg p-2 ${task.color} text-white`}
+                        className={`rounded-2xl p-2 ${task.color} text-white`}
                       >
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1">
                         <div className="mb-1 flex items-center gap-2">
-                          <h3 className="font-semibold text-sm">
+                          <h3 className="font-bold text-sm text-gray-900 dark:text-white">
                             {task.title}
                           </h3>
                           <Badge
@@ -254,16 +263,20 @@ export function StaffDashboard() {
                             {task.priority}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-gray-500 dark:text-slate-400">
                           {task.description}
                         </p>
-                        <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                        <div className="mt-2 flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400">
                           <Clock className="h-3 w-3" />
                           <span>{task.dueTime}</span>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <ArrowRight className="h-4 w-4" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-[#1baa56]/5 dark:hover:bg-[#148041]/30 cursor-pointer"
+                      >
+                        <ArrowRight className="h-4 w-4 text-gray-500 dark:text-slate-400" />
                       </Button>
                     </div>
                   );
@@ -273,11 +286,17 @@ export function StaffDashboard() {
           </Card>
 
           {/* Recent Complaints */}
-          <Card>
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards">
             <CardContent className="p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Recent Complaints</h2>
-                <Button variant="link" size="sm">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  Recent Complaints
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-500 hover:text-[#1baa56] cursor-pointer"
+                >
                   View All
                 </Button>
               </div>
@@ -285,14 +304,14 @@ export function StaffDashboard() {
                 {recentComplaints.map((complaint) => (
                   <div
                     key={complaint.id}
-                    className="flex items-start gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/50"
+                    className="flex items-start gap-4 rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
                   >
-                    <div className="rounded-lg bg-red-100 p-2 text-red-600">
+                    <div className="rounded-2xl bg-[#1baa56]/10 dark:bg-[#148041]/30 p-2 text-[#1baa56] dark:text-[#1baa56]">
                       <AlertCircle className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
                       <div className="mb-1 flex items-center gap-2">
-                        <h3 className="font-semibold text-sm">
+                        <h3 className="font-bold text-sm text-gray-900 dark:text-white">
                           {complaint.title}
                         </h3>
                         <Badge
@@ -302,15 +321,19 @@ export function StaffDashboard() {
                           {complaint.status}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-gray-500 dark:text-slate-400">
                         Room {complaint.room} - {complaint.resident}
                       </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                         {complaint.time}
                       </p>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <ArrowRight className="h-4 w-4" />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-[#1baa56]/5 dark:hover:bg-[#148041]/30 cursor-pointer"
+                    >
+                      <ArrowRight className="h-4 w-4 text-gray-500 dark:text-slate-400" />
                     </Button>
                   </div>
                 ))}
@@ -322,21 +345,23 @@ export function StaffDashboard() {
         {/* Right Column - Quick Actions & Info */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card>
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-backwards">
             <CardContent className="p-6">
-              <h2 className="mb-4 text-lg font-semibold">Quick Actions</h2>
+              <h2 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                Quick Actions
+              </h2>
               <div className="grid gap-3">
                 {quickActions.map((action, index) => {
                   const Icon = action.icon;
                   return (
                     <Button
                       key={index}
-                      className={`h-auto justify-start gap-3 p-4 text-white ${action.color}`}
+                      className="h-auto justify-start gap-3 rounded-full bg-[#1baa56] p-4 text-white shadow-lg shadow-[#1baa56]/30 hover:bg-[#1baa56] hover:shadow-[#1baa56]/50 hover:-translate-y-1 active:scale-95 transition-all duration-300 cursor-pointer"
                       asChild
                     >
                       <a href={action.href}>
                         <Icon className="h-5 w-5" />
-                        <span className="font-medium">{action.label}</span>
+                        <span className="font-bold">{action.label}</span>
                         <ArrowRight className="ml-auto h-4 w-4" />
                       </a>
                     </Button>
@@ -346,82 +371,110 @@ export function StaffDashboard() {
             </CardContent>
           </Card>
 
-          {/* Today&apos;s Summary */}
-          <Card>
+          {/* Today's Summary */}
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards">
             <CardContent className="p-6">
-              <h2 className="mb-4 text-lg font-semibold">
+              <h2 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Today&apos;s Summary
               </h2>
               <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-lg border p-3">
+                <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 cursor-pointer hover:shadow-md transition-all">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-sm font-medium">Completed Tasks</span>
+                    <CheckCircle className="h-5 w-5 text-[#1baa56] dark:text-[#1baa56]" />
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      Completed Tasks
+                    </span>
                   </div>
-                  <Badge variant="secondary">8</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="bg-[#1baa56]/10 text-[#1baa56] dark:bg-[#148041]/30 dark:text-[#1baa56]"
+                  >
+                    8
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border p-3">
+                <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 cursor-pointer hover:shadow-md transition-all">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-orange-600" />
-                    <span className="text-sm font-medium">Pending Tasks</span>
+                    <Clock className="h-5 w-5 text-[#1baa56] dark:text-[#1baa56]" />
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      Pending Tasks
+                    </span>
                   </div>
-                  <Badge variant="secondary">12</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="bg-[#1baa56]/10 text-[#1baa56] dark:bg-[#148041]/30 dark:text-[#1baa56]"
+                  >
+                    12
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border p-3">
+                <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 cursor-pointer hover:shadow-md transition-all">
                   <div className="flex items-center gap-2">
-                    <Shirt className="h-5 w-5 text-purple-600" />
-                    <span className="text-sm font-medium">Laundry Orders</span>
+                    <Shirt className="h-5 w-5 text-[#1baa56] dark:text-[#1baa56]" />
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      Laundry Orders
+                    </span>
                   </div>
-                  <Badge variant="secondary">7</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="bg-[#1baa56]/10 text-[#1baa56] dark:bg-[#148041]/30 dark:text-[#1baa56]"
+                  >
+                    7
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border p-3">
+                <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 cursor-pointer hover:shadow-md transition-all">
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-red-600" />
-                    <span className="text-sm font-medium">New Complaints</span>
+                    <AlertCircle className="h-5 w-5 text-[#1baa56] dark:text-[#1baa56]" />
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      New Complaints
+                    </span>
                   </div>
-                  <Badge variant="secondary">3</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="bg-[#1baa56]/10 text-[#1baa56] dark:bg-[#148041]/30 dark:text-[#1baa56]"
+                  >
+                    3
+                  </Badge>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Utility Readings Due */}
-          <Card>
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400 fill-mode-backwards">
             <CardContent className="p-6">
-              <h2 className="mb-4 text-lg font-semibold">
+              <h2 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Utility Readings Due
               </h2>
               <div className="space-y-3">
-                <div className="rounded-lg border bg-blue-50 p-3">
-                  <div className="mb-2 flex items-center gap-2 text-blue-600">
+                <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-[#1baa56] dark:text-[#1baa56]">
                     <Droplet className="h-5 w-5" />
-                    <span className="font-medium text-sm">Water Meters</span>
+                    <span className="font-bold text-sm">Water Meters</span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-500 dark:text-slate-400 mb-3">
                     6 rooms need reading
                   </p>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-3 w-full border-blue-200 text-blue-600 hover:bg-blue-100"
+                    className="w-full rounded-full border-[#1baa56]/20 dark:border-[#148041] text-[#1baa56] dark:text-[#1baa56] hover:bg-[#1baa56]/5 dark:hover:bg-[#148041]/30 cursor-pointer"
                   >
                     Record Now
                   </Button>
                 </div>
-                <div className="rounded-lg border bg-yellow-50 p-3">
-                  <div className="mb-2 flex items-center gap-2 text-yellow-600">
+                <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-[#1baa56] dark:text-[#1baa56]">
                     <Zap className="h-5 w-5" />
-                    <span className="font-medium text-sm">
+                    <span className="font-bold text-sm">
                       Electricity Meters
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-500 dark:text-slate-400 mb-3">
                     6 rooms need reading
                   </p>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-3 w-full border-yellow-200 text-yellow-600 hover:bg-yellow-100"
+                    className="w-full rounded-full border-[#1baa56]/20 dark:border-[#148041] text-[#1baa56] dark:text-[#1baa56] hover:bg-[#1baa56]/5 dark:hover:bg-[#148041]/30 cursor-pointer"
                   >
                     Record Now
                   </Button>
@@ -434,3 +487,4 @@ export function StaffDashboard() {
     </div>
   );
 }
+

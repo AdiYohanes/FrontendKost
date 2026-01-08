@@ -14,13 +14,12 @@ export const roomSchema = z.object({
     .number()
     .int('Floor must be an integer')
     .min(0, 'Floor must be at least 0')
-    .optional()
-    .nullable(),
+    .optional(),
   rentalPrice: z
     .number()
     .min(0, 'Rental price must be at least 0')
     .positive('Rental price must be positive'),
-  facilities: z.record(z.string(), z.unknown()).optional().default({}),
+  facilities: z.record(z.string(), z.unknown()).default({}),
   status: z.nativeEnum(RoomStatus),
 });
 

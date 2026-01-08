@@ -235,7 +235,7 @@ export function TenantDashboard() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="rounded-lg bg-orange-100 p-2 text-orange-600">
+                      <div className="rounded-lg bg-[#1baa56]/10 p-2 text-[#1baa56]">
                         <Phone className="h-5 w-5" />
                       </div>
                       <div>
