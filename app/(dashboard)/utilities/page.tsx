@@ -16,8 +16,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Droplets, Zap, Filter } from "lucide-react";
+import { Plus, Droplets, Zap, Filter, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -123,62 +130,87 @@ export default function UtilitiesPage() {
             {/* Resident Selection (only for OWNER and PENJAGA) */}
             {user?.role !== UserRole.PENGHUNI && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Resident</label>
-                <select
-                  value={selectedResidentId}
-                  onChange={(e) => setSelectedResidentId(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  disabled={residentsLoading}
-                >
-                  <option value="">Select a resident</option>
-                  {residentsLoading ? (
-                    <option disabled>Loading residents...</option>
-                  ) : residents && residents.length > 0 ? (
-                    residents.map((resident) => (
-                      <option key={resident.id} value={resident.id}>
-                        {resident.user.name || resident.user.username} - Room{" "}
-                        {resident.room.roomNumber}
-                      </option>
-                    ))
-                  ) : (
-                    <option disabled>No active residents</option>
-                  )}
-                </select>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Resident</label>
+                <Select value={selectedResidentId} onValueChange={setSelectedResidentId} disabled={residentsLoading}>
+                  <SelectTrigger className="w-full h-10 bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                    <SelectValue placeholder={residentsLoading ? "Loading residents..." : "Select a resident"} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1 max-h-[200px]">
+                    <SelectItem value="ALL_RESIDENTS" className="text-zinc-500 focus:text-zinc-700 focus:bg-zinc-50 cursor-pointer rounded-lg py-2.5">
+                      Select a resident
+                    </SelectItem>
+                    {residents && residents.length > 0 ? (
+                      residents.map((resident) => (
+                        <SelectItem key={resident.id} value={resident.id} className="focus:bg-zinc-50 cursor-pointer rounded-lg py-2.5">
+                          {resident.user.name || resident.user.username} - Room {resident.room.roomNumber}
+                        </SelectItem>
+                      ))
+                    ) : (
+                       <SelectItem value="NO_RESIDENTS" disabled className="text-zinc-400">No active residents</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
             {/* Utility Type Filter */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Utility Type</label>
-              <select
-                value={utilityTypeFilter}
-                onChange={(e) =>
-                  setUtilityTypeFilter(e.target.value as UtilityType | "ALL")
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="ALL">🔍 All Types</option>
-                <option value={UtilityType.WATER}>💧 Water</option>
-                <option value={UtilityType.ELECTRICITY}>⚡ Electricity</option>
-              </select>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Utility Type</label>
+              <Select value={utilityTypeFilter} onValueChange={(val) => setUtilityTypeFilter(val as UtilityType | "ALL")}>
+                <SelectTrigger className="w-full h-10 bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
+                  <SelectItem value="ALL" className="focus:bg-zinc-50 cursor-pointer rounded-lg py-2.5">
+                     <div className="flex items-center gap-2">
+                        <Filter className="h-4 w-4 text-zinc-500" />
+                        <span>All Types</span>
+                     </div>
+                  </SelectItem>
+                  <SelectItem value={UtilityType.WATER} className="focus:bg-blue-50 cursor-pointer rounded-lg py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Droplets className="h-4 w-4 text-blue-500" />
+                      <span>Water</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value={UtilityType.ELECTRICITY} className="focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-yellow-500" />
+                      <span>Electricity</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Billing Status Filter */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Billing Status</label>
-              <select
-                value={billedFilter}
-                onChange={(e) =>
-                  setBilledFilter(
-                    e.target.value as "ALL" | "BILLED" | "UNBILLED"
-                  )
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="ALL">📋 All Status</option>
-                <option value="BILLED">✅ Billed</option>
-                <option value="UNBILLED">⏳ Unbilled</option>
-              </select>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Billing Status</label>
+              <Select value={billedFilter} onValueChange={(val) => setBilledFilter(val as "ALL" | "BILLED" | "UNBILLED")}>
+                 <SelectTrigger className="w-full h-10 bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
+                  <SelectItem value="ALL" className="focus:bg-zinc-50 cursor-pointer rounded-lg py-2.5">
+                     <div className="flex items-center gap-2">
+                        <Filter className="h-4 w-4 text-zinc-500" />
+                        <span>All Status</span>
+                     </div>
+                  </SelectItem>
+                  <SelectItem value="BILLED" className="focus:bg-green-50 cursor-pointer rounded-lg py-2.5">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span>Billed</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="UNBILLED" className="focus:bg-orange-50 cursor-pointer rounded-lg py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-orange-500" />
+                      <span>Unbilled</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>

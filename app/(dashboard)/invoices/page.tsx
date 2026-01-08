@@ -1,12 +1,19 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useInvoices } from "@/lib/hooks/useInvoices";
 import { ITEMS_PER_PAGE } from "@/lib/constants/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Plus,
   Search,
@@ -28,6 +35,24 @@ export default function InvoicesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [placeholderText, setPlaceholderText] = useState("Search invoice, resident, or room...");
+
+  // Handle responsive placeholder
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setPlaceholderText("Search invoices...");
+      } else {
+        setPlaceholderText("Search invoice, resident, or room...");
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Fetch invoices based on status filter
   const paymentStatusParam = statusFilter === "all" ? undefined : statusFilter;
@@ -284,26 +309,27 @@ export default function InvoicesPage() {
       {/* Filters */}
       <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg p-4 md:p-6">
         <div className="flex flex-col gap-3 md:flex-row md:gap-4">
-          <div className="flex-1 relative">
+          <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-slate-400" />
             <Input
-              placeholder="Search invoice, resident, or room..."
+              placeholder={placeholderText}
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 h-12 md:h-14 rounded-2xl bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 cursor-pointer"
+              className="pl-10 h-10 md:h-12 w-full rounded-xl bg-gray-50 dark:bg-slate-900 border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-zinc-400"
             />
           </div>
           <div className="w-full md:w-[200px]">
-            <select
-              value={statusFilter}
-              onChange={(e) => handleStatusFilterChange(e.target.value)}
-              className="flex h-12 md:h-14 w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="all">All Invoices</option>
-              <option value="UNPAID">Unpaid</option>
-              <option value="PAID">Paid</option>
-              <option value="PARTIAL">Partial</option>
-            </select>
+             <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+              <SelectTrigger className="w-full md:w-full h-10 md:h-12 rounded-xl bg-gray-50 dark:bg-slate-900 border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                <SelectValue placeholder="All Invoices" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
+                <SelectItem value="all" className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5">All Invoices</SelectItem>
+                <SelectItem value="UNPAID" className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5">Unpaid</SelectItem>
+                <SelectItem value="PAID" className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5">Paid</SelectItem>
+                <SelectItem value="PARTIAL" className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5">Partial</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </Card>

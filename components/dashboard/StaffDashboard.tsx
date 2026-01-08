@@ -189,7 +189,7 @@ export function StaffDashboard() {
       </div>
 
       {/* Operational Metrics Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-backwards">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-backwards">
         {operationalMetrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
@@ -350,7 +350,7 @@ export function StaffDashboard() {
               <h2 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Quick Actions
               </h2>
-              <div className="grid gap-3">
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
                 {quickActions.map((action, index) => {
                   const Icon = action.icon;
                   return (
@@ -377,7 +377,7 @@ export function StaffDashboard() {
               <h2 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Today&apos;s Summary
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3 lg:space-y-3 lg:grid-cols-1">
                 <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 cursor-pointer hover:shadow-md transition-all">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-[#1baa56] dark:text-[#1baa56]" />
@@ -444,7 +444,7 @@ export function StaffDashboard() {
               <h2 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Utility Readings Due
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3 lg:space-y-3 lg:grid-cols-1">
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 p-4">
                   <div className="mb-2 flex items-center gap-2 text-[#1baa56] dark:text-[#1baa56]">
                     <Droplet className="h-5 w-5" />

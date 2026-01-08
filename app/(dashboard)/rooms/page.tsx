@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRooms } from "@/lib/hooks/useRooms";
 import { RoomStatus } from "@/lib/api/types";
 import { ITEMS_PER_PAGE } from "@/lib/constants/pagination";
@@ -35,6 +35,21 @@ export default function RoomsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [placeholderText, setPlaceholderText] = useState("Search by room number or floor...");
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setPlaceholderText("Search rooms...");
+      } else {
+        setPlaceholderText("Search by room number or floor...");
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -175,24 +190,30 @@ export default function RoomsPage() {
       {/* Filters and View Toggle */}
       <Card className="p-4">
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex-1 relative w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <Input
-              placeholder="Search by room number or floor..."
+              placeholder={placeholderText}
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-10 w-full bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-zinc-400"
             />
           </div>
           <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-            <SelectTrigger className="w-full md:w-[200px]">
+            <SelectTrigger className="w-full md:w-[200px] h-10 bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value={RoomStatus.AVAILABLE}>Available</SelectItem>
-              <SelectItem value={RoomStatus.OCCUPIED}>Occupied</SelectItem>
-              <SelectItem value={RoomStatus.MAINTENANCE}>
+            <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
+              <SelectItem value="all" className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5">
+                All Status
+              </SelectItem>
+              <SelectItem value={RoomStatus.AVAILABLE} className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5">
+                Available
+              </SelectItem>
+              <SelectItem value={RoomStatus.OCCUPIED} className="text-blue-600 focus:text-blue-700 focus:bg-blue-50 cursor-pointer rounded-lg py-2.5">
+                Occupied
+              </SelectItem>
+              <SelectItem value={RoomStatus.MAINTENANCE} className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5">
                 Maintenance
               </SelectItem>
             </SelectContent>

@@ -497,7 +497,7 @@ export function TenantDashboard() {
                 </Button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3 lg:space-y-3 lg:grid-cols-1">
                 {complaints.map((complaint) => (
                   <div
                     key={complaint.id}
@@ -546,7 +546,7 @@ export function TenantDashboard() {
                 </Button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3 lg:space-y-3 lg:grid-cols-1">
                 {laundryOrders.map((order) => (
                   <div
                     key={order.id}
@@ -589,7 +589,7 @@ export function TenantDashboard() {
           <Card>
             <CardContent className="p-6">
               <h2 className="mb-4 text-lg font-semibold">Quick Links</h2>
-              <div className="space-y-2">
+              <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-2 md:gap-3 lg:space-y-2 lg:grid-cols-1">
                 <Button
                   variant="outline"
                   className="w-full justify-start"

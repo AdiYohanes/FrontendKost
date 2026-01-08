@@ -149,7 +149,7 @@ export function OwnerDashboard() {
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-backwards">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-backwards">
         {keyMetrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
@@ -214,7 +214,7 @@ export function OwnerDashboard() {
               </div>
 
               {/* Occupancy Stats */}
-              <div className="mb-6 grid gap-4 md:grid-cols-4">
+              <div className="mb-6 grid gap-4 grid-cols-2 md:grid-cols-4">
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 p-4">
                   <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-slate-400">
                     <Home className="h-4 w-4" />
@@ -335,7 +335,7 @@ export function OwnerDashboard() {
               <h2 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Quick Actions
               </h2>
-              <div className="grid gap-3">
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
                 {quickActions.map((action, index) => {
                   const Icon = action.icon;
                   return (
@@ -371,7 +371,7 @@ export function OwnerDashboard() {
                   View Report
                 </Button>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-3 md:gap-4 lg:space-y-4 lg:grid-cols-1">
                 <div className="flex items-center justify-between rounded-2xl bg-[#1baa56]/5 dark:bg-[#148041]/30 p-4">
                   <div>
                     <p className="text-sm text-gray-500 dark:text-slate-400">
@@ -415,7 +415,7 @@ export function OwnerDashboard() {
               <h2 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Pending Tasks
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-3 md:gap-3 lg:space-y-3 lg:grid-cols-1">
                 <div className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 cursor-pointer hover:shadow-md transition-all">
                   <Clock className="h-5 w-5 text-[#1baa56]" />
                   <div className="flex-1">
