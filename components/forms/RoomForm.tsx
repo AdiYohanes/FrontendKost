@@ -46,7 +46,7 @@ export function RoomForm({ room, onSubmit, isSubmitting }: RoomFormProps) {
       };
 
   const form = useForm<RoomFormData>({
-    resolver: zodResolver(roomSchema) as any, // Type inference issue with Zod and React Hook Form
+    resolver: zodResolver(roomSchema),
     defaultValues,
   });
 

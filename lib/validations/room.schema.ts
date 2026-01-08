@@ -19,7 +19,7 @@ export const roomSchema = z.object({
     .number()
     .min(0, 'Rental price must be at least 0')
     .positive('Rental price must be positive'),
-  facilities: z.record(z.string(), z.unknown()).default({}),
+  facilities: z.record(z.string(), z.unknown()),
   status: z.nativeEnum(RoomStatus),
 });
 

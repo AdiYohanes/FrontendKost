@@ -12,7 +12,11 @@ export default function PWATestPage() {
   const [swRegistration, setSwRegistration] = useState<
     ServiceWorkerRegistration | undefined
   >();
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(display-mode: standalone)").matches
+      : false
+  );
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -20,9 +24,6 @@ export default function PWATestPage() {
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-
-    // Check if installed as PWA
-    setIsInstalled(window.matchMedia("(display-mode: standalone)").matches);
 
     // Check service worker
     if ("serviceWorker" in navigator) {

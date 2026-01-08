@@ -71,10 +71,12 @@ export default function NewLaundryPage() {
       await createLaundry.mutateAsync(data);
       toast.success("Laundry transaction created successfully");
       router.push("/laundry");
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Failed to create laundry transaction"
-      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to create laundry transaction";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

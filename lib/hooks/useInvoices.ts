@@ -10,7 +10,7 @@ import {
   UpdatePaymentStatusDto,
 } from '../api/services/invoices';
 import { queryKeys } from '../query/queryKeys';
-import { Invoice } from '../api/types';
+import { Invoice, InvoiceStatus } from '../api/types';
 
 /**
  * Hook to fetch all invoices
@@ -95,7 +95,7 @@ export function useUpdatePaymentStatus() {
             invoice.id === id
               ? {
                   ...invoice,
-                  paymentStatus: data.paymentStatus as any,
+                  paymentStatus: data.paymentStatus as InvoiceStatus,
                   paidDate:
                     data.paymentStatus === 'PAID'
                       ? new Date().toISOString()
@@ -110,7 +110,7 @@ export function useUpdatePaymentStatus() {
       if (previousInvoice) {
         queryClient.setQueryData<Invoice>(queryKeys.invoices.detail(id), {
           ...previousInvoice,
-          paymentStatus: data.paymentStatus as any,
+          paymentStatus: data.paymentStatus as InvoiceStatus,
           paidDate:
             data.paymentStatus === 'PAID'
               ? new Date().toISOString()

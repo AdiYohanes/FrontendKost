@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Plus, Search, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -35,10 +34,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { useComplaints } from "@/lib/hooks/useComplaints";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { ComplaintStatus, UserRole } from "@/lib/api/types";
+import { ComplaintStatus, UserRole, Complaint } from "@/lib/api/types";
 
 export default function ComplaintsPage() {
-  const router = useRouter();
   const { user } = useAuthStore();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -116,7 +114,7 @@ export default function ComplaintsPage() {
   };
 
   // Get priority indicator (based on status and age)
-  const getPriorityIndicator = (complaint: any) => {
+  const getPriorityIndicator = (complaint: Complaint) => {
     const daysSinceCreated = Math.floor(
       (new Date().getTime() - new Date(complaint.createdAt).getTime()) /
         (1000 * 60 * 60 * 24)
@@ -262,76 +260,79 @@ export default function ComplaintsPage() {
                       <TableRow
                         key={complaint.id}
                         className="cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() =>
-                          router.push(`/complaints/${complaint.id}`)
-                        }
                       >
-                        {/* ID */}
-                        <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-                          #{String(index + 1).padStart(3, "0")}
-                        </TableCell>
+                        <Link
+                          href={`/complaints/${complaint.id}`}
+                          className="contents"
+                        >
+                          {/* ID */}
+                          <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                            #{String(index + 1).padStart(3, "0")}
+                          </TableCell>
 
-                        {/* Resident Info (only for staff/owner) */}
-                        {user?.role !== UserRole.PENGHUNI && (
-                          <TableCell className="min-w-[150px]">
+                          {/* Resident Info (only for staff/owner) */}
+                          {user?.role !== UserRole.PENGHUNI && (
+                            <TableCell className="min-w-[150px]">
+                              <div className="flex flex-col">
+                                <span className="font-medium whitespace-nowrap">
+                                  {complaint.resident?.user?.name ||
+                                    complaint.resident?.user?.username ||
+                                    "N/A"}
+                                </span>
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                  Room{" "}
+                                  {complaint.resident?.room?.roomNumber ||
+                                    "N/A"}
+                                </span>
+                              </div>
+                            </TableCell>
+                          )}
+
+                          {/* Title */}
+                          <TableCell className="min-w-[200px]">
                             <div className="flex flex-col">
-                              <span className="font-medium whitespace-nowrap">
-                                {complaint.resident?.user?.name ||
-                                  complaint.resident?.user?.username ||
-                                  "N/A"}
+                              <span className="font-medium line-clamp-1">
+                                {complaint.title}
                               </span>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                Room{" "}
-                                {complaint.resident?.room?.roomNumber || "N/A"}
+                              <span className="text-xs text-muted-foreground line-clamp-1">
+                                {complaint.description}
                               </span>
                             </div>
                           </TableCell>
-                        )}
 
-                        {/* Title */}
-                        <TableCell className="min-w-[200px]">
-                          <div className="flex flex-col">
-                            <span className="font-medium line-clamp-1">
-                              {complaint.title}
-                            </span>
-                            <span className="text-xs text-muted-foreground line-clamp-1">
-                              {complaint.description}
-                            </span>
-                          </div>
-                        </TableCell>
-
-                        {/* Status */}
-                        <TableCell className="text-center">
-                          <Badge
-                            className={`${statusBadge.className} whitespace-nowrap`}
-                          >
-                            {statusBadge.label}
-                          </Badge>
-                        </TableCell>
-
-                        {/* Priority */}
-                        <TableCell className="text-center">
-                          {priority.show && (
-                            <div
-                              className={`flex items-center justify-center gap-1 ${priority.className}`}
+                          {/* Status */}
+                          <TableCell className="text-center">
+                            <Badge
+                              className={`${statusBadge.className} whitespace-nowrap`}
                             >
-                              <AlertCircle className="h-4 w-4" />
-                              <span className="text-xs font-medium whitespace-nowrap">
-                                {priority.label}
-                              </span>
-                            </div>
-                          )}
-                        </TableCell>
+                              {statusBadge.label}
+                            </Badge>
+                          </TableCell>
 
-                        {/* Created Date */}
-                        <TableCell className="text-right text-sm text-muted-foreground whitespace-nowrap">
-                          {complaint.createdAt
-                            ? format(
-                                new Date(complaint.createdAt),
-                                "dd MMM yyyy"
-                              )
-                            : "N/A"}
-                        </TableCell>
+                          {/* Priority */}
+                          <TableCell className="text-center">
+                            {priority.show && (
+                              <div
+                                className={`flex items-center justify-center gap-1 ${priority.className}`}
+                              >
+                                <AlertCircle className="h-4 w-4" />
+                                <span className="text-xs font-medium whitespace-nowrap">
+                                  {priority.label}
+                                </span>
+                              </div>
+                            )}
+                          </TableCell>
+
+                          {/* Created Date */}
+                          <TableCell className="text-right text-sm text-muted-foreground whitespace-nowrap">
+                            {complaint.createdAt
+                              ? format(
+                                  new Date(complaint.createdAt),
+                                  "dd MMM yyyy"
+                                )
+                              : "N/A"}
+                          </TableCell>
+                        </Link>
                       </TableRow>
                     );
                   })}
