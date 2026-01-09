@@ -36,6 +36,7 @@ import {
 import Link from "next/link";
 import { UtilityType } from "@/lib/api/types";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 
 export default function GenerateInvoicePage() {
   const router = useRouter();
@@ -114,8 +115,7 @@ export default function GenerateInvoicePage() {
       setIsConfirmDialogOpen(false);
       router.push(`/invoices/${result.id}`);
     } catch (error) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || "Failed to generate invoice");
+      toast.error(getErrorMessage(error));
     }
   };
 

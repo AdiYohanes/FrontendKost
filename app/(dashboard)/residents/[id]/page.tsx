@@ -8,14 +8,7 @@ import { formatCurrency } from "@/lib/utils/roomUtils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import {
   ArrowLeft,
   LogOut,
@@ -368,40 +361,17 @@ export default function ResidentDetailsPage() {
       </Card>
 
       {/* Move Out Confirmation Dialog */}
-      <Dialog open={showMoveOutDialog} onOpenChange={setShowMoveOutDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              Move Out {resident.user?.name || resident.user?.username}?
-            </DialogTitle>
-            <DialogDescription>
-              Tindakan ini akan:
-              <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-                <li>Mengubah status penghuni menjadi inactive</li>
-                <li>Mengatur tanggal keluar ke hari ini</li>
-                <li>Mengubah status kamar menjadi AVAILABLE</li>
-              </ul>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowMoveOutDialog(false)}
-            >
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleMoveOut}
-              disabled={moveOutMutation.isPending}
-            >
-              {moveOutMutation.isPending
-                ? "Memproses..."
-                : "Konfirmasi Move Out"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmationDialog
+        open={showMoveOutDialog}
+        onOpenChange={setShowMoveOutDialog}
+        title={`Move Out ${resident.user?.name || resident.user?.username}?`}
+        description={`Tindakan ini akan:\n• Mengubah status penghuni menjadi inactive\n• Mengatur tanggal keluar ke hari ini\n• Mengubah status kamar menjadi AVAILABLE`}
+        confirmText="Konfirmasi Move Out"
+        cancelText="Batal"
+        onConfirm={handleMoveOut}
+        variant="destructive"
+        loading={moveOutMutation.isPending}
+      />
     </div>
   );
 }

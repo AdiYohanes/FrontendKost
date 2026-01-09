@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { ArrowLeft, Loader2, Edit, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -71,21 +72,15 @@ export default function ComplaintDetailPage() {
     return variants[status];
   };
 
-  // Validate status transition
+  // Validate status transition (OPEN → IN_PROGRESS → RESOLVED)
   const isValidStatusTransition = (
     currentStatus: ComplaintStatus,
     newStatus: ComplaintStatus
   ): boolean => {
     const validTransitions: Record<ComplaintStatus, ComplaintStatus[]> = {
-      [ComplaintStatus.OPEN]: [
-        ComplaintStatus.IN_PROGRESS,
-        ComplaintStatus.CLOSED,
-      ],
-      [ComplaintStatus.IN_PROGRESS]: [
-        ComplaintStatus.RESOLVED,
-        ComplaintStatus.CLOSED,
-      ],
-      [ComplaintStatus.RESOLVED]: [ComplaintStatus.CLOSED],
+      [ComplaintStatus.OPEN]: [ComplaintStatus.IN_PROGRESS],
+      [ComplaintStatus.IN_PROGRESS]: [ComplaintStatus.RESOLVED],
+      [ComplaintStatus.RESOLVED]: [],
       [ComplaintStatus.CLOSED]: [],
     };
     return validTransitions[currentStatus]?.includes(newStatus) || false;
@@ -115,9 +110,7 @@ export default function ComplaintDetailPage() {
       setSelectedStatus("");
       setResolutionNotes("");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to update status";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       setIsUpdating(false);
     }
@@ -187,24 +180,8 @@ export default function ComplaintDetailPage() {
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Submitted By</p>
-              <p className="font-medium">
-                {complaint.resident?.user?.name ||
-                  complaint.resident?.user?.username ||
-                  "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Room</p>
-              <p className="font-medium">
-                {complaint.resident?.room?.roomNumber || "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Contact</p>
-              <p className="font-medium">
-                {complaint.resident?.user?.phoneNumber || "N/A"}
-              </p>
+              <p className="text-sm text-muted-foreground">Tenant ID</p>
+              <p className="font-mono text-sm">{complaint.tenantId}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Submitted Date</p>
@@ -235,7 +212,7 @@ export default function ComplaintDetailPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-muted-foreground">Current Status</p>
-                {canUpdate && complaint.status !== "CLOSED" && (
+                {canUpdate && complaint.status !== "RESOLVED" && (
                   <Button
                     size="sm"
                     variant="outline"
@@ -348,24 +325,17 @@ export default function ComplaintDetailPage() {
               <Label>New Status</Label>
               <select
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value as ComplaintStatus)}
+                onChange={(e) =>
+                  setSelectedStatus(e.target.value as ComplaintStatus)
+                }
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="">Select new status</option>
                 {complaint.status === "OPEN" && (
-                  <>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="CLOSED">Closed</option>
-                  </>
+                  <option value="IN_PROGRESS">In Progress</option>
                 )}
                 {complaint.status === "IN_PROGRESS" && (
-                  <>
-                    <option value="RESOLVED">Resolved</option>
-                    <option value="CLOSED">Closed</option>
-                  </>
-                )}
-                {complaint.status === "RESOLVED" && (
-                  <option value="CLOSED">Closed</option>
+                  <option value="RESOLVED">Resolved</option>
                 )}
               </select>
             </div>

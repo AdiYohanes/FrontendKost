@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InlineLoadingSpinner } from "@/components/ui/loading-spinner";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -230,7 +231,16 @@ export function RoomForm({ room, onSubmit, isSubmitting }: RoomFormProps) {
       {/* Submit Button */}
       <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : room ? "Update Room" : "Create Room"}
+          {isSubmitting ? (
+            <>
+              <InlineLoadingSpinner className="mr-2" />
+              Saving...
+            </>
+          ) : room ? (
+            "Update Room"
+          ) : (
+            "Create Room"
+          )}
         </Button>
       </div>
     </form>

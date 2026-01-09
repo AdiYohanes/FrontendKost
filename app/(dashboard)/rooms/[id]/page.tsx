@@ -12,14 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import {
   ArrowLeft,
   Edit,
@@ -65,10 +59,7 @@ export default function RoomDetailsPage() {
   if (isLoading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-3">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto"></div>
-          <p className="text-sm text-muted-foreground">Memuat data kamar...</p>
-        </div>
+        <LoadingSpinner size="lg" text="Memuat data kamar..." />
       </div>
     );
   }
@@ -339,32 +330,17 @@ export default function RoomDetailsPage() {
       </Card>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hapus Kamar {room.roomNumber}?</DialogTitle>
-            <DialogDescription>
-              Tindakan ini tidak dapat dibatalkan. Kamar akan dihapus secara
-              permanen dari sistem.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
-            >
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleteRoom.isPending}
-            >
-              {deleteRoom.isPending ? "Menghapus..." : "Hapus Kamar"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title={`Hapus Kamar ${room.roomNumber}?`}
+        description="Tindakan ini tidak dapat dibatalkan. Kamar akan dihapus secara permanen dari sistem."
+        confirmText="Hapus Kamar"
+        cancelText="Batal"
+        onConfirm={handleDelete}
+        variant="destructive"
+        loading={deleteRoom.isPending}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -72,11 +73,7 @@ export default function NewLaundryPage() {
       toast.success("Laundry transaction created successfully");
       router.push("/laundry");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to create laundry transaction";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }

@@ -48,7 +48,10 @@ export function handleApiError(error: AxiosError<ApiErrorResponse>): string {
         return data?.message || 'An error occurred. Please try again.';
     }
   } else if (error.request) {
-    // Request made but no response received
+    // Request made but no response received (network error or offline)
+    if (!navigator.onLine) {
+      return 'You are offline. Please check your internet connection.';
+    }
     return 'Tidak dapat terhubung ke server. Pastikan:\n• Backend API berjalan di http://localhost:3000\n• Koneksi internet Anda stabil\n• Tidak ada firewall yang memblokir koneksi';
   } else {
     // Error in request setup

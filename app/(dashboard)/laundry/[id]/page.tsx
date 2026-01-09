@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { ArrowLeft, Loader2, Edit } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -135,7 +136,7 @@ export default function LaundryDetailPage() {
       setStatusDialogOpen(false);
       setSelectedStatus("");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update status");
+      toast.error(getErrorMessage(error));
     } finally {
       setIsUpdating(false);
     }
@@ -155,9 +156,7 @@ export default function LaundryDetailPage() {
       setPaymentDialogOpen(false);
       setSelectedPayment("");
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Failed to update payment status"
-      );
+      toast.error(getErrorMessage(error));
     } finally {
       setIsUpdating(false);
     }
@@ -380,7 +379,9 @@ export default function LaundryDetailPage() {
               <Label>New Status</Label>
               <select
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value as LaundryStatus)}
+                onChange={(e) =>
+                  setSelectedStatus(e.target.value as LaundryStatus)
+                }
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="">Select new status</option>
@@ -444,7 +445,9 @@ export default function LaundryDetailPage() {
               <Label>Payment Status</Label>
               <select
                 value={selectedPayment}
-                onChange={(e) => setSelectedPayment(e.target.value as LaundryPaymentStatus)}
+                onChange={(e) =>
+                  setSelectedPayment(e.target.value as LaundryPaymentStatus)
+                }
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="">Select payment status</option>

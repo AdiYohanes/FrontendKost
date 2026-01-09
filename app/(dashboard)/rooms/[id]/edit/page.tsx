@@ -1,15 +1,28 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useRoom, useUpdateRoom } from "@/lib/hooks/useRooms";
 import { getErrorMessage } from "@/lib/utils/errorHandler";
-import { RoomForm } from "@/components/forms/RoomForm";
 import { RoomFormData } from "@/lib/validations/room.schema";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
+
+// Dynamically import RoomForm for code splitting
+const RoomForm = dynamic(
+  () =>
+    import("@/components/forms/RoomForm").then((mod) => ({
+      default: mod.RoomForm,
+    })),
+  {
+    loading: () => <FormSkeleton />,
+    ssr: false,
+  }
+);
 
 export default function EditRoomPage() {
   const params = useParams();

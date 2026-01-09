@@ -44,6 +44,8 @@ export function Sidebar() {
 
   return (
     <aside
+      role="navigation"
+      aria-label="Main navigation"
       className={cn(
         "hidden md:flex flex-col border-r border-gray-200 bg-white transition-all duration-300",
         sidebarOpen ? "w-64" : "w-16"
@@ -67,8 +69,12 @@ export function Sidebar() {
               size="icon"
               onClick={toggleSidebar}
               className="h-8 w-8 rounded-full hover:bg-gray-100"
+              aria-label="Collapse sidebar"
             >
-              <ChevronLeft className="h-4 w-4 text-gray-600" />
+              <ChevronLeft
+                className="h-4 w-4 text-gray-600"
+                aria-hidden="true"
+              />
             </Button>
           </>
         ) : (
@@ -77,15 +83,20 @@ export function Sidebar() {
             size="icon"
             onClick={toggleSidebar}
             className="h-10 w-10 rounded-xl hover:bg-gray-100 mx-auto"
+            aria-label="Expand sidebar"
           >
-            <Building2 className="h-6 w-6 text-[#1baa56]" />
+            <Building2 className="h-6 w-6 text-[#1baa56]" aria-hidden="true" />
           </Button>
         )}
       </div>
 
       {/* User Profile Card */}
       {user && sidebarOpen && (
-        <div className="mx-4 my-4 p-4 rounded-xl bg-gray-50 border border-gray-200">
+        <div
+          className="mx-4 my-4 p-4 rounded-xl bg-gray-50 border border-gray-200"
+          role="region"
+          aria-label="User profile"
+        >
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1baa56] text-white text-base font-bold">
               {user?.name?.charAt(0).toUpperCase() ||
@@ -119,7 +130,7 @@ export function Sidebar() {
 
       {/* Navigation Menu */}
       <ScrollArea className="flex-1 px-4">
-        <nav className="space-y-1 pb-4">
+        <nav className="space-y-1 pb-4" aria-label="Main menu">
           {filteredNavItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -138,8 +149,10 @@ export function Sidebar() {
                   !sidebarOpen && "justify-center px-0"
                 )}
                 title={!sidebarOpen ? item.title : undefined}
+                aria-label={item.title}
+                aria-current={isActive ? "page" : undefined}
               >
-                <Icon className="h-5 w-5 shrink-0" />
+                <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
                 {sidebarOpen && <span>{item.title}</span>}
               </Link>
             );
@@ -154,8 +167,9 @@ export function Sidebar() {
             variant="ghost"
             onClick={handleLogout}
             className="w-full justify-start gap-3 text-gray-600 hover:text-red-600 hover:bg-red-50"
+            aria-label="Logout from application"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-5 w-5" aria-hidden="true" />
             <span>Logout</span>
           </Button>
         ) : (
@@ -165,8 +179,9 @@ export function Sidebar() {
             onClick={handleLogout}
             className="w-full h-10 text-gray-600 hover:text-red-600 hover:bg-red-50"
             title="Logout"
+            aria-label="Logout from application"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-5 w-5" aria-hidden="true" />
           </Button>
         )}
       </div>
@@ -180,8 +195,12 @@ export function Sidebar() {
             onClick={toggleSidebar}
             className="w-full h-10 hover:bg-gray-100"
             title="Expand sidebar"
+            aria-label="Expand sidebar"
           >
-            <ChevronRight className="h-4 w-4 text-gray-600" />
+            <ChevronRight
+              className="h-4 w-4 text-gray-600"
+              aria-hidden="true"
+            />
           </Button>
         </div>
       )}

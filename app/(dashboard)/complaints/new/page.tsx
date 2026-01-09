@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 import { ArrowLeft, Loader2, Upload, X } from "lucide-react";
 import Link from "next/link";
 
@@ -85,9 +86,7 @@ export default function NewComplaintPage() {
       toast.success("Complaint submitted successfully");
       router.push("/complaints");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to submit complaint";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -132,7 +131,7 @@ export default function NewComplaintPage() {
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>Maximum 100 characters</FormDescription>
+                    <FormDescription>Maximum 200 characters</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

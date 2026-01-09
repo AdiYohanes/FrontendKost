@@ -204,13 +204,12 @@ export enum ComplaintStatus {
  */
 export interface Complaint {
   id: string;
-  residentId: string;
+  tenantId: string;
   title: string;
   description: string;
   photos: string[];
   status: ComplaintStatus;
   resolutionNotes?: string;
-  resident: Resident;
   createdAt: string;
   updatedAt: string;
 }

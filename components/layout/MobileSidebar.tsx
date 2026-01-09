@@ -81,7 +81,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
 
         {/* Navigation Menu */}
         <ScrollArea className="flex-1 px-4">
-          <nav className="space-y-1 pb-4">
+          <nav className="space-y-1 pb-4" aria-label="Main navigation">
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -93,14 +93,16 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
                   href={item.href}
                   onClick={() => onOpenChange(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-3 rounded-xl px-4 text-sm font-medium transition-all duration-200",
+                    "min-h-[44px] py-3", // Ensure minimum touch target of 44px
                     "active:scale-[0.98]",
                     isActive
                       ? "bg-[#1baa56] text-white shadow-sm"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   )}
+                  aria-current={isActive ? "page" : undefined}
                 >
-                  <Icon className="h-5 w-5 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
                   <span>{item.title}</span>
                 </Link>
               );
@@ -113,9 +115,10 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
           <Button
             variant="ghost"
             onClick={handleLogout}
-            className="w-full justify-start gap-3 text-gray-600 hover:text-red-600 hover:bg-red-50"
+            className="w-full justify-start gap-3 text-gray-600 hover:text-red-600 hover:bg-red-50 min-h-[44px]"
+            aria-label="Logout"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-5 w-5" aria-hidden="true" />
             <span>Logout</span>
           </Button>
         </div>

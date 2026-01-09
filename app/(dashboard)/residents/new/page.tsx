@@ -34,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 import { format } from "date-fns";
 
 const STEPS = [
@@ -79,9 +80,7 @@ export default function ResidentOnboardingPage() {
       toast.success("Resident onboarded successfully");
       router.push("/residents");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to onboard resident";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     }
   };
 

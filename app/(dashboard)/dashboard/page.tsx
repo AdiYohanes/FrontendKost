@@ -1,9 +1,60 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { OwnerDashboard } from "@/components/dashboard/OwnerDashboard";
-import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
-import { TenantDashboard } from "@/components/dashboard/TenantDashboard";
+import { CardSkeleton } from "@/components/ui/card-skeleton";
+
+// Dynamically import dashboard components for code splitting
+const OwnerDashboard = dynamic(
+  () =>
+    import("@/components/dashboard/OwnerDashboard").then((mod) => ({
+      default: mod.OwnerDashboard,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-6">
+        <CardSkeleton />
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    ),
+    ssr: false,
+  }
+);
+
+const StaffDashboard = dynamic(
+  () =>
+    import("@/components/dashboard/StaffDashboard").then((mod) => ({
+      default: mod.StaffDashboard,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-6">
+        <CardSkeleton />
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    ),
+    ssr: false,
+  }
+);
+
+const TenantDashboard = dynamic(
+  () =>
+    import("@/components/dashboard/TenantDashboard").then((mod) => ({
+      default: mod.TenantDashboard,
+    })),
+  {
+    loading: () => (
+      <div className="space-y-6">
+        <CardSkeleton />
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 export default function DashboardPage() {
   const { user } = useAuthStore();

@@ -41,6 +41,7 @@ import Link from "next/link";
 import { format, isPast, parseISO } from "date-fns";
 import { InvoiceStatus, UtilityType } from "@/lib/api/types";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 
 export default function InvoiceDetailsPage() {
   const params = useParams();
@@ -118,9 +119,7 @@ export default function InvoiceDetailsPage() {
       setIsUpdateDialogOpen(false);
       setSelectedStatus("");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to update status";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     }
   };
 

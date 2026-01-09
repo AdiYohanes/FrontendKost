@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 import { format } from "date-fns";
 import { useMemo } from "react";
 
@@ -74,9 +75,7 @@ export default function RecordUtilityPage() {
       toast.success("Utility record created successfully");
       router.push("/utilities");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to record utility";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     }
   };
 

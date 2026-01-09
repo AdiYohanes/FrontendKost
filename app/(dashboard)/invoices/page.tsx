@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StatCardSkeleton, CardSkeleton } from "@/components/ui/card-skeleton";
 import {
   Plus,
   Search,
@@ -35,7 +36,9 @@ export default function InvoicesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [placeholderText, setPlaceholderText] = useState("Search invoice, resident, or room...");
+  const [placeholderText, setPlaceholderText] = useState(
+    "Search invoice, resident, or room..."
+  );
 
   // Handle responsive placeholder
   useEffect(() => {
@@ -219,92 +222,98 @@ export default function InvoicesPage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
-        <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
-              Total
-            </CardTitle>
-            <FileText className="h-4 w-4 text-gray-500 dark:text-slate-400" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-              {stats.total}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-slate-400">
-              All invoices
-            </p>
-          </CardContent>
-        </Card>
+      {isLoading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+          <StatCardSkeleton count={5} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
+                Total
+              </CardTitle>
+              <FileText className="h-4 w-4 text-gray-500 dark:text-slate-400" />
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                {stats.total}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-slate-400">
+                All invoices
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
-              Unpaid
-            </CardTitle>
-            <AlertCircle className="h-4 w-4 text-gray-600 dark:text-slate-400" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-              {stats.unpaid}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-slate-400">
-              Awaiting
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
+                Unpaid
+              </CardTitle>
+              <AlertCircle className="h-4 w-4 text-gray-600 dark:text-slate-400" />
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                {stats.unpaid}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-slate-400">
+                Awaiting
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
-              Paid
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 text-[#1baa56]" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-[#1baa56]">
-              {stats.paid}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-slate-400">
-              Completed
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
+                Paid
+              </CardTitle>
+              <CheckCircle className="h-4 w-4 text-[#1baa56]" />
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-[#1baa56]">
+                {stats.paid}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-slate-400">
+                Completed
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
-              Overdue
-            </CardTitle>
-            <AlertCircle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-red-600">
-              {stats.overdue}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-slate-400">
-              Past due
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
+                Overdue
+              </CardTitle>
+              <AlertCircle className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-red-600">
+                {stats.overdue}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-slate-400">
+                Past due
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="col-span-2 lg:col-span-1 rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
-              Total
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-gray-500 dark:text-slate-400" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-base md:text-xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(stats.totalAmount)}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-slate-400">
-              All invoices
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="col-span-2 lg:col-span-1 rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-500 dark:text-slate-400">
+                Total
+              </CardTitle>
+              <DollarSign className="h-4 w-4 text-gray-500 dark:text-slate-400" />
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-base md:text-xl font-bold text-gray-900 dark:text-white">
+                {formatCurrency(stats.totalAmount)}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-slate-400">
+                All invoices
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Filters */}
       <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg p-4 md:p-6">
@@ -319,15 +328,38 @@ export default function InvoicesPage() {
             />
           </div>
           <div className="w-full md:w-[200px]">
-             <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+            <Select
+              value={statusFilter}
+              onValueChange={handleStatusFilterChange}
+            >
               <SelectTrigger className="w-full md:w-full h-10 md:h-12 rounded-xl bg-gray-50 dark:bg-slate-900 border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
                 <SelectValue placeholder="All Invoices" />
               </SelectTrigger>
               <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
-                <SelectItem value="all" className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5">All Invoices</SelectItem>
-                <SelectItem value="UNPAID" className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5">Unpaid</SelectItem>
-                <SelectItem value="PAID" className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5">Paid</SelectItem>
-                <SelectItem value="PARTIAL" className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5">Partial</SelectItem>
+                <SelectItem
+                  value="all"
+                  className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5"
+                >
+                  All Invoices
+                </SelectItem>
+                <SelectItem
+                  value="UNPAID"
+                  className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5"
+                >
+                  Unpaid
+                </SelectItem>
+                <SelectItem
+                  value="PAID"
+                  className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5"
+                >
+                  Paid
+                </SelectItem>
+                <SelectItem
+                  value="PARTIAL"
+                  className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5"
+                >
+                  Partial
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -336,14 +368,16 @@ export default function InvoicesPage() {
 
       {/* Invoices List */}
       {isLoading ? (
-        <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg p-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1baa56] mx-auto"></div>
-            <p className="mt-4 text-gray-500 dark:text-slate-400">
-              Loading invoices...
-            </p>
-          </div>
-        </Card>
+        <div className="grid gap-3 md:gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <CardSkeleton
+              key={i}
+              showHeader={false}
+              contentLines={5}
+              className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg"
+            />
+          ))}
+        </div>
       ) : paginatedInvoices.length === 0 ? (
         <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg p-8 md:p-12">
           <div className="text-center space-y-4">

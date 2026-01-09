@@ -4,6 +4,8 @@ import "./globals.css";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { QueryProvider } from "@/lib/query";
 import { Toaster } from "@/components/ui/sonner";
+import { OfflineIndicator } from "@/components/ui/offline-indicator";
+import { OfflineSyncManager } from "@/components/offline-sync-manager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -102,6 +104,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <QueryProvider>
+          <OfflineIndicator />
+          <OfflineSyncManager />
           {children}
           <PWAInstallPrompt />
           <Toaster />

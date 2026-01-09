@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { Plus, Search, Filter, Loader2 } from "lucide-react";
+import { Plus, Search, Filter, Loader2, Package } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
   TableBody,
@@ -44,7 +45,9 @@ export default function LaundryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
-  const [placeholderText, setPlaceholderText] = useState("Search by resident, room, or service...");
+  const [placeholderText, setPlaceholderText] = useState(
+    "Search by resident, room, or service..."
+  );
 
   // Handle responsive placeholder
   useEffect(() => {
@@ -212,12 +215,42 @@ export default function LaundryPage() {
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
-                  <SelectItem value="all" className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5">All Status</SelectItem>
-                  <SelectItem value="PENDING" className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5">Pending</SelectItem>
-                  <SelectItem value="ON_PROCESS" className="text-blue-600 focus:text-blue-700 focus:bg-blue-50 cursor-pointer rounded-lg py-2.5">On Process</SelectItem>
-                  <SelectItem value="READY_TO_PICKUP" className="text-purple-600 focus:text-purple-700 focus:bg-purple-50 cursor-pointer rounded-lg py-2.5">Ready</SelectItem>
-                  <SelectItem value="COMPLETED" className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5">Completed</SelectItem>
-                  <SelectItem value="CANCELLED" className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg py-2.5">Cancelled</SelectItem>
+                  <SelectItem
+                    value="all"
+                    className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5"
+                  >
+                    All Status
+                  </SelectItem>
+                  <SelectItem
+                    value="PENDING"
+                    className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Pending
+                  </SelectItem>
+                  <SelectItem
+                    value="ON_PROCESS"
+                    className="text-blue-600 focus:text-blue-700 focus:bg-blue-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    On Process
+                  </SelectItem>
+                  <SelectItem
+                    value="READY_TO_PICKUP"
+                    className="text-purple-600 focus:text-purple-700 focus:bg-purple-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Ready
+                  </SelectItem>
+                  <SelectItem
+                    value="COMPLETED"
+                    className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Completed
+                  </SelectItem>
+                  <SelectItem
+                    value="CANCELLED"
+                    className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Cancelled
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -229,9 +262,24 @@ export default function LaundryPage() {
                   <SelectValue placeholder="All Payments" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
-                  <SelectItem value="all" className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5">All Payments</SelectItem>
-                  <SelectItem value="UNPAID" className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg py-2.5">Unpaid</SelectItem>
-                  <SelectItem value="PAID" className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5">Paid</SelectItem>
+                  <SelectItem
+                    value="all"
+                    className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5"
+                  >
+                    All Payments
+                  </SelectItem>
+                  <SelectItem
+                    value="UNPAID"
+                    className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Unpaid
+                  </SelectItem>
+                  <SelectItem
+                    value="PAID"
+                    className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Paid
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -255,19 +303,25 @@ export default function LaundryPage() {
               ))}
             </div>
           ) : filteredTransactions.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                No laundry transactions found
-              </p>
-              {canCreate && (
-                <Link href="/laundry/new">
-                  <Button className="mt-4">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create First Transaction
-                  </Button>
-                </Link>
-              )}
-            </div>
+            <EmptyState
+              icon={Package}
+              title="No laundry transactions found"
+              description={
+                searchQuery || statusFilter !== "all" || paymentFilter !== "all"
+                  ? "Try adjusting your filters to see more results"
+                  : canCreate
+                    ? "Create your first laundry transaction to get started"
+                    : "No laundry transactions have been created yet"
+              }
+              action={
+                canCreate
+                  ? {
+                      label: "Create Transaction",
+                      onClick: () => router.push("/laundry/new"),
+                    }
+                  : undefined
+              }
+            />
           ) : (
             <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
               <Table>

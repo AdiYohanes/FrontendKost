@@ -10,7 +10,7 @@ export const complaintSchema = z.object({
     .string()
     .min(1, 'Title is required')
     .min(5, 'Title must be at least 5 characters')
-    .max(100, 'Title must be at most 100 characters'),
+    .max(200, 'Title must be at most 200 characters'),
   description: z
     .string()
     .min(1, 'Description is required')

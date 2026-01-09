@@ -13,6 +13,9 @@ import {
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useRoom } from "@/lib/hooks/useRooms";
 import { useResident } from "@/lib/hooks/useResidents";
+import { GlobalSearch } from "./GlobalSearch";
+import { useKeyboardShortcuts } from "@/lib/hooks/useKeyboardShortcuts";
+import { useRef } from "react";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -91,6 +94,19 @@ export function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const searchRef = useRef<any>(null);
+
+  // Keyboard shortcut: Ctrl+K to focus search
+  useKeyboardShortcuts([
+    {
+      key: "k",
+      ctrl: true,
+      callback: () => {
+        searchRef.current?.focus();
+      },
+      description: "Focus search",
+    },
+  ]);
 
   // Extract room ID from pathname if on room detail page
   const roomIdMatch = pathname.match(/\/rooms\/([0-9a-f-]+)/i);
@@ -114,26 +130,34 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 md:px-6 shadow-sm">
+    <header
+      className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 md:px-6 shadow-sm"
+      role="banner"
+    >
       {/* Mobile Menu Button */}
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden hover:bg-gray-100"
+        className="md:hidden hover:bg-gray-100 h-11 w-11"
         onClick={onMenuClick}
-        aria-label="Open menu"
+        aria-label="Open navigation menu"
       >
-        <Menu className="h-5 w-5 text-gray-700" />
+        <Menu className="h-5 w-5 text-gray-700" aria-hidden="true" />
       </Button>
 
       {/* Breadcrumbs */}
       <nav
-        className="flex items-center gap-2 text-sm flex-1"
+        className="hidden lg:flex items-center gap-2 text-sm flex-1"
         aria-label="Breadcrumb"
       >
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.href || index} className="flex items-center gap-2">
-            {index > 0 && <ChevronRight className="h-4 w-4 text-gray-400" />}
+            {index > 0 && (
+              <ChevronRight
+                className="h-4 w-4 text-gray-400"
+                aria-hidden="true"
+              />
+            )}
             {crumb.href ? (
               <button
                 onClick={() => router.push(crumb.href)}
@@ -148,6 +172,11 @@ export function Header({ onMenuClick }: HeaderProps) {
         ))}
       </nav>
 
+      {/* Global Search - Hidden on mobile, shown on tablet and desktop */}
+      <div className="hidden md:flex flex-1 lg:flex-initial">
+        <GlobalSearch ref={searchRef} />
+      </div>
+
       {/* User Menu */}
       {user && (
         <DropdownMenu>
@@ -158,7 +187,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               aria-label="User menu"
             >
               <div className="flex items-center gap-3">
-                <div className="flex flex-col items-end">
+                <div className="hidden lg:flex flex-col items-end">
                   <p className="text-sm font-semibold text-gray-900">
                     {user?.name || user?.username || "User"}
                   </p>

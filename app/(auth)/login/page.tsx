@@ -98,6 +98,8 @@ function LoginForm() {
               fill
               className="object-contain drop-shadow-2xl dark:drop-shadow-[0_20px_50px_rgba(251,146,60,0.3)]"
               priority
+              sizes="(max-width: 768px) 100vw, 500px"
+              quality={90}
             />
           </div>
 
@@ -127,6 +129,9 @@ function LoginForm() {
               alt="Panda Mascot"
               fill
               className="object-contain drop-shadow-xl dark:drop-shadow-[0_20px_50px_rgba(251,146,60,0.3)]"
+              priority
+              sizes="(max-width: 768px) 160px, 224px"
+              quality={90}
             />
           </div>
 
@@ -289,4 +294,3 @@ export default function LoginPage() {
     </Suspense>
   );
 }
-

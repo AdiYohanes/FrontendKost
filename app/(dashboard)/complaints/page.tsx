@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { Plus, Search, AlertCircle } from "lucide-react";
+import { Plus, Search, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
   TableBody,
@@ -35,7 +36,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { useComplaints } from "@/lib/hooks/useComplaints";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { ComplaintStatus, UserRole, Complaint } from "@/lib/api/types";
+import { ComplaintStatus, UserRole } from "@/lib/api/types";
 
 export default function ComplaintsPage() {
   const { user } = useAuthStore();
@@ -43,24 +44,6 @@ export default function ComplaintsPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [placeholderText, setPlaceholderText] = useState("Search by title, description, or resident...");
-
-  // Handle responsive placeholder
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 640) {
-        setPlaceholderText("Search complaints...");
-      } else {
-        setPlaceholderText("Search by title, description, or resident...");
-      }
-    };
-
-    // Initial check
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // Fetch complaints
   const { data: complaints, isLoading } = useComplaints();
@@ -70,27 +53,12 @@ export default function ComplaintsPage() {
     if (!complaints) return [];
 
     return complaints.filter((complaint) => {
-      // Role-based filtering: PENGHUNI sees only own complaints
-      if (user?.role === UserRole.PENGHUNI) {
-        // Check if complaint belongs to current user's resident record
-        const userResidentId = complaint.resident?.userId;
-        if (userResidentId !== user.id) {
-          return false;
-        }
-      }
-
       // Search filter
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch =
         complaint.title?.toLowerCase().includes(searchLower) ||
         complaint.description?.toLowerCase().includes(searchLower) ||
-        complaint.resident?.user?.name?.toLowerCase().includes(searchLower) ||
-        complaint.resident?.user?.username
-          ?.toLowerCase()
-          .includes(searchLower) ||
-        complaint.resident?.room?.roomNumber
-          ?.toLowerCase()
-          .includes(searchLower);
+        complaint.id?.toLowerCase().includes(searchLower);
 
       // Status filter
       const matchesStatus =
@@ -98,7 +66,7 @@ export default function ComplaintsPage() {
 
       return matchesSearch && matchesStatus;
     });
-  }, [complaints, searchQuery, statusFilter, user]);
+  }, [complaints, searchQuery, statusFilter]);
 
   // Get status badge variant
   const getStatusBadge = (status: ComplaintStatus) => {
@@ -131,29 +99,6 @@ export default function ComplaintsPage() {
       },
     };
     return variants[status];
-  };
-
-  // Get priority indicator (based on status and age)
-  const getPriorityIndicator = (complaint: Complaint) => {
-    const daysSinceCreated = Math.floor(
-      (new Date().getTime() - new Date(complaint.createdAt).getTime()) /
-        (1000 * 60 * 60 * 24)
-    );
-
-    if (complaint.status === "OPEN" && daysSinceCreated > 7) {
-      return {
-        show: true,
-        className: "text-red-500",
-        label: "High Priority",
-      };
-    } else if (complaint.status === "OPEN" && daysSinceCreated > 3) {
-      return {
-        show: true,
-        className: "text-yellow-500",
-        label: "Medium Priority",
-      };
-    }
-    return { show: false, className: "", label: "" };
   };
 
   // Check if user can create complaints
@@ -193,7 +138,7 @@ export default function ComplaintsPage() {
             <div className="flex-1 relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
               <Input
-                placeholder={placeholderText}
+                placeholder="Search by title, description, or ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-10 w-full bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-zinc-400"
@@ -207,11 +152,36 @@ export default function ComplaintsPage() {
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
-                  <SelectItem value="all" className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5">All Status</SelectItem>
-                  <SelectItem value="OPEN" className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg py-2.5">Open</SelectItem>
-                  <SelectItem value="IN_PROGRESS" className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5">In Progress</SelectItem>
-                  <SelectItem value="RESOLVED" className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5">Resolved</SelectItem>
-                  <SelectItem value="CLOSED" className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5">Closed</SelectItem>
+                  <SelectItem
+                    value="all"
+                    className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5"
+                  >
+                    All Status
+                  </SelectItem>
+                  <SelectItem
+                    value="OPEN"
+                    className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Open
+                  </SelectItem>
+                  <SelectItem
+                    value="IN_PROGRESS"
+                    className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    In Progress
+                  </SelectItem>
+                  <SelectItem
+                    value="RESOLVED"
+                    className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Resolved
+                  </SelectItem>
+                  <SelectItem
+                    value="CLOSED"
+                    className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5"
+                  >
+                    Closed
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -235,17 +205,25 @@ export default function ComplaintsPage() {
               ))}
             </div>
           ) : filteredComplaints.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No complaints found</p>
-              {canCreate && (
-                <Link href="/complaints/new">
-                  <Button className="mt-4">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Submit First Complaint
-                  </Button>
-                </Link>
-              )}
-            </div>
+            <EmptyState
+              icon={Wrench}
+              title="No complaints found"
+              description={
+                searchQuery || statusFilter !== "all"
+                  ? "Try adjusting your filters to see more results"
+                  : canCreate
+                    ? "Submit your first complaint to get started"
+                    : "No complaints have been submitted yet"
+              }
+              action={
+                canCreate
+                  ? {
+                      label: "Submit Complaint",
+                      onClick: () => router.push("/complaints/new"),
+                    }
+                  : undefined
+              }
+            />
           ) : (
             <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
               <Table>
@@ -254,19 +232,11 @@ export default function ComplaintsPage() {
                     <TableHead className="font-semibold whitespace-nowrap">
                       ID
                     </TableHead>
-                    {user?.role !== UserRole.PENGHUNI && (
-                      <TableHead className="font-semibold whitespace-nowrap">
-                        Resident
-                      </TableHead>
-                    )}
                     <TableHead className="font-semibold whitespace-nowrap">
                       Title
                     </TableHead>
                     <TableHead className="font-semibold text-center whitespace-nowrap">
                       Status
-                    </TableHead>
-                    <TableHead className="font-semibold text-center whitespace-nowrap">
-                      Priority
                     </TableHead>
                     <TableHead className="font-semibold text-right whitespace-nowrap">
                       Created
@@ -276,36 +246,19 @@ export default function ComplaintsPage() {
                 <TableBody>
                   {filteredComplaints.map((complaint, index) => {
                     const statusBadge = getStatusBadge(complaint.status);
-                    const priority = getPriorityIndicator(complaint);
 
                     return (
                       <TableRow
                         key={complaint.id}
                         className="cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() => router.push(`/complaints/${complaint.id}`)}
+                        onClick={() =>
+                          router.push(`/complaints/${complaint.id}`)
+                        }
                       >
                         {/* ID */}
                         <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
                           #{String(index + 1).padStart(3, "0")}
                         </TableCell>
-
-                        {/* Resident Info (only for staff/owner) */}
-                        {user?.role !== UserRole.PENGHUNI && (
-                          <TableCell className="min-w-[150px]">
-                            <div className="flex flex-col">
-                              <span className="font-medium whitespace-nowrap">
-                                {complaint.resident?.user?.name ||
-                                  complaint.resident?.user?.username ||
-                                  "N/A"}
-                              </span>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                Room{" "}
-                                {complaint.resident?.room?.roomNumber ||
-                                  "N/A"}
-                              </span>
-                            </div>
-                          </TableCell>
-                        )}
 
                         {/* Title */}
                         <TableCell className="min-w-[200px]">
@@ -326,20 +279,6 @@ export default function ComplaintsPage() {
                           >
                             {statusBadge.label}
                           </Badge>
-                        </TableCell>
-
-                        {/* Priority */}
-                        <TableCell className="text-center">
-                          {priority.show && (
-                            <div
-                              className={`flex items-center justify-center gap-1 ${priority.className}`}
-                            >
-                              <AlertCircle className="h-4 w-4" />
-                              <span className="text-xs font-medium whitespace-nowrap">
-                                {priority.label}
-                              </span>
-                            </div>
-                          )}
                         </TableCell>
 
                         {/* Created Date */}

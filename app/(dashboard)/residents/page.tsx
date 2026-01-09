@@ -3,6 +3,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { useResidents } from "@/lib/hooks/useResidents";
 import { ITEMS_PER_PAGE } from "@/lib/constants/pagination";
+import { usePrefetch } from "@/lib/hooks/usePrefetch";
+import { residentsApi } from "@/lib/api/services/residents";
+import { queryKeys } from "@/lib/query/queryKeys";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  StatCardSkeleton,
+  GridCardSkeleton,
+  ListCardSkeleton,
+} from "@/components/ui/card-skeleton";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Plus,
   Search,
@@ -34,7 +43,10 @@ export default function ResidentsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [placeholderText, setPlaceholderText] = useState("Search by name, username, or room number...");
+  const [placeholderText, setPlaceholderText] = useState(
+    "Search by name, username, or room number..."
+  );
+  const { createPrefetchHandlers } = usePrefetch();
 
   // Handle responsive placeholder
   useEffect(() => {
@@ -149,54 +161,60 @@ export default function ResidentsPage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Residents
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              All residents in the system
-            </p>
-          </CardContent>
-        </Card>
+      {isLoading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <StatCardSkeleton count={3} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Residents
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.total}</div>
+              <p className="text-xs text-muted-foreground">
+                All residents in the system
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Residents
-            </CardTitle>
-            <UserCheck className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {stats.active}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Currently living here
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Active Residents
+              </CardTitle>
+              <UserCheck className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {stats.active}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Currently living here
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="col-span-2 lg:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Inactive Residents
-            </CardTitle>
-            <UserX className="h-4 w-4 text-gray-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-600">
-              {stats.inactive}
-            </div>
-            <p className="text-xs text-muted-foreground">Moved out</p>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="col-span-2 lg:col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Inactive Residents
+              </CardTitle>
+              <UserX className="h-4 w-4 text-gray-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-600">
+                {stats.inactive}
+              </div>
+              <p className="text-xs text-muted-foreground">Moved out</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Filters and View Toggle */}
       <Card className="p-4">
@@ -215,9 +233,24 @@ export default function ResidentsPage() {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
-              <SelectItem value="all" className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5">All Residents</SelectItem>
-              <SelectItem value="active" className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5">Active</SelectItem>
-              <SelectItem value="inactive" className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5">Inactive</SelectItem>
+              <SelectItem
+                value="all"
+                className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5"
+              >
+                All Residents
+              </SelectItem>
+              <SelectItem
+                value="active"
+                className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5"
+              >
+                Active
+              </SelectItem>
+              <SelectItem
+                value="inactive"
+                className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5"
+              >
+                Inactive
+              </SelectItem>
             </SelectContent>
           </Select>
           <div className="flex gap-2">
@@ -241,12 +274,15 @@ export default function ResidentsPage() {
 
       {/* Residents Display */}
       {isLoading ? (
-        <Card className="p-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Loading residents...</p>
-          </div>
-        </Card>
+        <>
+          {viewMode === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <GridCardSkeleton count={6} />
+            </div>
+          ) : (
+            <ListCardSkeleton count={5} />
+          )}
+        </>
       ) : paginatedResidents.length === 0 ? (
         <Card className="p-12">
           <div className="text-center space-y-4">
@@ -331,7 +367,14 @@ export default function ResidentsPage() {
                     </span>
                   </div>
                 </div>
-                <Link href={`/residents/${resident.id}`} className="block pt-2">
+                <Link
+                  href={`/residents/${resident.id}`}
+                  className="block pt-2"
+                  {...createPrefetchHandlers(
+                    queryKeys.residents.detail(resident.id),
+                    () => residentsApi.getById(resident.id)
+                  )}
+                >
                   <Button variant="outline" size="sm" className="w-full">
                     <Eye className="mr-2 h-4 w-4" />
                     View Details
@@ -389,7 +432,13 @@ export default function ResidentsPage() {
                       </div>
                     </div>
                   </div>
-                  <Link href={`/residents/${resident.id}`}>
+                  <Link
+                    href={`/residents/${resident.id}`}
+                    {...createPrefetchHandlers(
+                      queryKeys.residents.detail(resident.id),
+                      () => residentsApi.getById(resident.id)
+                    )}
+                  >
                     <Button variant="ghost" size="sm" className="flex-shrink-0">
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -402,58 +451,14 @@ export default function ResidentsPage() {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
-            {Math.min(currentPage * ITEMS_PER_PAGE, filteredResidents.length)}{" "}
-            of {filteredResidents.length} residents
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={currentPage === pageNum ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentPage(pageNum)}
-                    className="w-8"
-                  >
-                    {pageNum}
-                  </Button>
-                );
-              })}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredResidents.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+        onPageChange={setCurrentPage}
+        itemLabel="residents"
+      />
     </div>
   );
 }
