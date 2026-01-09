@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PaymentForm } from "@/components/forms/PaymentForm";
 import {
   ArrowLeft,
   FileText,
@@ -52,6 +53,7 @@ export default function InvoiceDetailsPage() {
 
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -119,6 +121,27 @@ export default function InvoiceDetailsPage() {
       setIsUpdateDialogOpen(false);
       setSelectedStatus("");
     } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
+  };
+
+  // Handle payment recording
+  const handlePaymentSubmit = async (data: any) => {
+    try {
+      // Backend currently only accepts paymentStatus
+      // TODO: Request backend to support: paidDate, paymentAmount, paymentMethod, notes
+      await updatePaymentStatus.mutateAsync({
+        id: invoiceId,
+        data: {
+          paymentStatus: data.paymentStatus,
+        },
+      });
+      toast.success(
+        `Payment recorded successfully! Status: ${data.paymentStatus}`
+      );
+      setIsPaymentDialogOpen(false);
+    } catch (error) {
+      console.error('Payment submission error:', error);
       toast.error(getErrorMessage(error));
     }
   };
@@ -459,15 +482,25 @@ export default function InvoiceDetailsPage() {
                 Quick Actions
               </h2>
               <div className="space-y-2">
+                {invoice.paymentStatus !== InvoiceStatus.PAID && (
+                  <Button
+                    onClick={() => setIsPaymentDialogOpen(true)}
+                    className="w-full h-12 rounded-full bg-[#1baa56] hover:bg-[#148041] text-white shadow-lg shadow-[#1baa56]/30 hover:shadow-[#1baa56]/50 hover:-translate-y-1 active:scale-95 transition-all duration-200 cursor-pointer justify-start"
+                  >
+                    <DollarSign className="mr-2 h-5 w-5" />
+                    Record Payment
+                  </Button>
+                )}
                 <Button
                   onClick={() => {
                     setSelectedStatus(invoice.paymentStatus);
                     setIsUpdateDialogOpen(true);
                   }}
-                  className="w-full h-12 rounded-full bg-[#1baa56] hover:bg-[#148041] text-white shadow-lg shadow-[#1baa56]/30 hover:shadow-[#1baa56]/50 hover:-translate-y-1 active:scale-95 transition-all duration-200 cursor-pointer justify-start"
+                  variant="outline"
+                  className="w-full h-12 rounded-full border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer justify-start"
                 >
                   <Edit className="mr-2 h-5 w-5" />
-                  Update Payment Status
+                  Update Status Manually
                 </Button>
                 <Button
                   variant="outline"
@@ -527,6 +560,28 @@ export default function InvoiceDetailsPage() {
               {updatePaymentStatus.isPending ? "Updating..." : "Update Status"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Record Payment Dialog */}
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent className="rounded-3xl max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              Record Payment
+            </DialogTitle>
+            <DialogDescription>
+              Record payment for invoice {invoice.invoiceNumber}
+            </DialogDescription>
+          </DialogHeader>
+          <PaymentForm
+            invoiceId={invoiceId}
+            totalAmount={invoice.totalAmount}
+            paidAmount={0} // TODO: Track paid amount from backend
+            currentStatus={invoice.paymentStatus}
+            onSubmit={handlePaymentSubmit}
+            isLoading={updatePaymentStatus.isPending}
+          />
         </DialogContent>
       </Dialog>
     </div>

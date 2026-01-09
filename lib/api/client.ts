@@ -81,7 +81,12 @@ apiClient.interceptors.response.use(
           break;
         
         default:
-          console.error('API error:', error.response.data);
+          console.error('API error:', {
+            status,
+            data: error.response.data,
+            url: error.config?.url,
+            method: error.config?.method,
+          });
       }
     } else if (error.request) {
       // Request made but no response received

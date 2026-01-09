@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { ArrowLeft, Loader2, Edit } from "lucide-react";
 import Link from "next/link";
@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -27,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { LaundryStatusTimeline } from "@/components/laundry/LaundryStatusTimeline";
 
 import {
   useLaundry,
@@ -37,14 +37,11 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { LaundryStatus, LaundryPaymentStatus, UserRole } from "@/lib/api/types";
 
 export default function LaundryDetailPage() {
-  const router = useRouter();
   const params = useParams();
   const { user } = useAuthStore();
   const id = params.id as string;
 
-  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<LaundryStatus | "">("");
   const [selectedPayment, setSelectedPayment] = useState<
     LaundryPaymentStatus | ""
   >("");
@@ -57,24 +54,6 @@ export default function LaundryDetailPage() {
   // Mutations
   const updateStatus = useUpdateLaundryStatus();
   const updatePayment = useUpdateLaundryPayment();
-
-  // Get status badge variant
-  const getStatusBadge = (status: LaundryStatus) => {
-    const variants: Record<
-      LaundryStatus,
-      {
-        variant: "default" | "secondary" | "destructive" | "outline";
-        label: string;
-      }
-    > = {
-      PENDING: { variant: "secondary", label: "Pending" },
-      ON_PROCESS: { variant: "default", label: "On Process" },
-      READY_TO_PICKUP: { variant: "outline", label: "Ready to Pickup" },
-      COMPLETED: { variant: "default", label: "Completed" },
-      CANCELLED: { variant: "destructive", label: "Cancelled" },
-    };
-    return variants[status];
-  };
 
   // Get payment badge variant
   const getPaymentBadge = (paymentStatus: LaundryPaymentStatus) => {
@@ -107,19 +86,19 @@ export default function LaundryDetailPage() {
     return validTransitions[currentStatus]?.includes(newStatus) || false;
   };
 
-  // Handle status update
-  const handleStatusUpdate = async () => {
-    if (!transaction || !selectedStatus) return;
+  // Handle status update with notes
+  const handleStatusUpdate = async (newStatus: LaundryStatus, notes?: string) => {
+    if (!transaction) return;
 
     // Validate transition
-    if (!isValidStatusTransition(transaction.status, selectedStatus)) {
+    if (!isValidStatusTransition(transaction.status, newStatus)) {
       toast.error("Invalid status transition");
       return;
     }
 
     // Check payment requirement for COMPLETED
     if (
-      selectedStatus === "COMPLETED" &&
+      newStatus === "COMPLETED" &&
       transaction.paymentStatus === "UNPAID"
     ) {
       toast.error("Cannot complete laundry without payment");
@@ -127,18 +106,14 @@ export default function LaundryDetailPage() {
     }
 
     try {
-      setIsUpdating(true);
       await updateStatus.mutateAsync({
         id: transaction.id,
-        data: { status: selectedStatus },
+        data: { status: newStatus },
       });
-      toast.success("Status updated successfully");
-      setStatusDialogOpen(false);
-      setSelectedStatus("");
-    } catch (error: any) {
+      toast.success(`Status updated to ${newStatus}${notes ? ` - ${notes}` : ""}`);
+    } catch (error) {
       toast.error(getErrorMessage(error));
-    } finally {
-      setIsUpdating(false);
+      throw error; // Re-throw to let component handle loading state
     }
   };
 
@@ -155,7 +130,7 @@ export default function LaundryDetailPage() {
       toast.success("Payment status updated successfully");
       setPaymentDialogOpen(false);
       setSelectedPayment("");
-    } catch (error: any) {
+    } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
       setIsUpdating(false);
@@ -189,7 +164,6 @@ export default function LaundryDetailPage() {
     );
   }
 
-  const statusBadge = getStatusBadge(transaction.status);
   const paymentBadge = getPaymentBadge(transaction.paymentStatus);
 
   return (
@@ -208,8 +182,8 @@ export default function LaundryDetailPage() {
       </div>
 
       {/* Transaction Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Basic Information */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Basic Information - 1 column */}
         <Card>
           <CardHeader>
             <CardTitle>Transaction Information</CardTitle>
@@ -218,14 +192,15 @@ export default function LaundryDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground">Resident</p>
               <p className="font-medium">
-                {transaction.resident.user.name ||
-                  transaction.resident.user.username}
+                {transaction.resident?.user?.name ||
+                  transaction.resident?.user?.username ||
+                  "N/A"}
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Room</p>
               <p className="font-medium">
-                {transaction.resident.room.roomNumber}
+                {transaction.resident?.room?.roomNumber || "N/A"}
               </p>
             </div>
             <div>
@@ -245,7 +220,9 @@ export default function LaundryDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground">Order Date</p>
               <p className="font-medium">
-                {format(new Date(transaction.orderDate), "dd MMMM yyyy")}
+                {transaction.orderDate
+                  ? format(new Date(transaction.orderDate), "dd MMMM yyyy")
+                  : "N/A"}
               </p>
             </div>
             {transaction.completedDate && (
@@ -256,40 +233,9 @@ export default function LaundryDetailPage() {
                 </p>
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Status and Payment */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Status & Payment</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Status */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-muted-foreground">Status</p>
-                {canUpdate &&
-                  transaction.status !== "COMPLETED" &&
-                  transaction.status !== "CANCELLED" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedStatus(transaction.status);
-                        setStatusDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="h-3 w-3 mr-1" />
-                      Update
-                    </Button>
-                  )}
-              </div>
-              <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
-            </div>
-
+            
             {/* Payment Status */}
-            <div>
+            <div className="pt-4 border-t">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-muted-foreground">Payment Status</p>
                 {canUpdate && transaction.paymentStatus === "UNPAID" && (
@@ -308,128 +254,20 @@ export default function LaundryDetailPage() {
               </div>
               <Badge variant={paymentBadge.variant}>{paymentBadge.label}</Badge>
             </div>
-
-            {/* Progress Timeline */}
-            <div>
-              <p className="text-sm text-muted-foreground mb-4">Progress</p>
-              <div className="space-y-3">
-                {[
-                  { status: "PENDING", label: "Pending" },
-                  { status: "ON_PROCESS", label: "On Process" },
-                  { status: "READY_TO_PICKUP", label: "Ready to Pickup" },
-                  { status: "COMPLETED", label: "Completed" },
-                ].map((step, index) => {
-                  const isActive = transaction.status === step.status;
-                  const isPassed =
-                    [
-                      "PENDING",
-                      "ON_PROCESS",
-                      "READY_TO_PICKUP",
-                      "COMPLETED",
-                    ].indexOf(transaction.status) >
-                    [
-                      "PENDING",
-                      "ON_PROCESS",
-                      "READY_TO_PICKUP",
-                      "COMPLETED",
-                    ].indexOf(step.status);
-
-                  return (
-                    <div key={step.status} className="flex items-center gap-3">
-                      <div
-                        className={`w-3 h-3 rounded-full ${
-                          isActive
-                            ? "bg-primary"
-                            : isPassed
-                              ? "bg-primary/50"
-                              : "bg-muted"
-                        }`}
-                      />
-                      <p
-                        className={`text-sm ${
-                          isActive
-                            ? "font-medium"
-                            : isPassed
-                              ? "text-muted-foreground"
-                              : "text-muted-foreground"
-                        }`}
-                      >
-                        {step.label}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Status Update Dialog */}
-      <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Update Status</DialogTitle>
-            <DialogDescription>
-              Change the transaction status. Only valid transitions are allowed.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>New Status</Label>
-              <select
-                value={selectedStatus}
-                onChange={(e) =>
-                  setSelectedStatus(e.target.value as LaundryStatus)
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="">Select new status</option>
-                {transaction.status === "PENDING" && (
-                  <>
-                    <option value="ON_PROCESS">On Process</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </>
-                )}
-                {transaction.status === "ON_PROCESS" && (
-                  <>
-                    <option value="READY_TO_PICKUP">Ready to Pickup</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </>
-                )}
-                {transaction.status === "READY_TO_PICKUP" && (
-                  <>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </>
-                )}
-              </select>
-            </div>
-            {selectedStatus === "COMPLETED" &&
-              transaction.paymentStatus === "UNPAID" && (
-                <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
-                  Cannot complete transaction without payment. Please update
-                  payment status first.
-                </div>
-              )}
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setStatusDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleStatusUpdate}
-              disabled={isUpdating || !selectedStatus}
-            >
-              {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Update Status
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Status Timeline - 2 columns */}
+        <div className="lg:col-span-2">
+          <LaundryStatusTimeline
+            currentStatus={transaction.status}
+            createdAt={transaction.createdAt}
+            updatedAt={transaction.updatedAt}
+            onStatusUpdate={handleStatusUpdate}
+            isLoading={updateStatus.isPending}
+          />
+        </div>
+      </div>
 
       {/* Payment Update Dialog */}
       <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
