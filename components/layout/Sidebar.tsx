@@ -9,6 +9,7 @@ import { NAV_ITEMS } from "@/lib/constants/navigation";
 import { Building2, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
 import { useEffect } from "react";
 
 export function Sidebar() {
@@ -127,6 +128,11 @@ export function Sidebar() {
           </div>
         </div>
       )}
+
+      {/* Notification Dropdown */}
+      <div className="px-4 pb-2">
+        <NotificationDropdown collapsed={!sidebarOpen} />
+      </div>
 
       {/* Navigation Menu */}
       <ScrollArea className="flex-1 px-4">
