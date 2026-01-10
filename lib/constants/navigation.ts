@@ -14,6 +14,8 @@ import {
   Refrigerator,
   Receipt,
   BarChart3,
+  Settings,
+  Bell,
 } from "lucide-react";
 
 export interface NavItem {
@@ -28,6 +30,12 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Dashboard",
     href: "/dashboard",
     icon: Home,
+    roles: ["OWNER", "PENJAGA", "PENGHUNI"],
+  },
+  {
+    title: "Notifications",
+    href: "/notifications",
+    icon: Bell,
     roles: ["OWNER", "PENJAGA", "PENGHUNI"],
   },
   {
@@ -83,5 +91,11 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/reports",
     icon: BarChart3,
     roles: ["OWNER"],
+  },
+  {
+    title: "Settings",
+    href: "/settings/notifications",
+    icon: Settings,
+    roles: ["OWNER", "PENJAGA", "PENGHUNI"],
   },
 ];

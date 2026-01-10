@@ -12,42 +12,66 @@ export interface User {
 
 interface AuthStore {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
-  login: (user: User, token: string) => void;
-  logout: () => void;
+  login: (user: User, accessToken: string, refreshToken: string) => void;
+  logout: () => Promise<void>;
   checkAuth: () => boolean;
   setUser: (user: User) => void;
+  updateTokens: (accessToken: string, refreshToken: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
       user: null,
-      token: null,
+      accessToken: null,
+      refreshToken: null,
       isAuthenticated: false,
 
-      login: (user: User, token: string) => {
-        // Store token in localStorage for API client
+      login: (user: User, accessToken: string, refreshToken: string) => {
+        // Store tokens in localStorage for API client
         if (typeof window !== 'undefined') {
-          localStorage.setItem('token', token);
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
           
-          // Also set a cookie for middleware to read
-          // This cookie will be accessible by the middleware
-          document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+          // Set cookie for middleware (short-lived for access token)
+          document.cookie = `token=${accessToken}; path=/; max-age=${60 * 15}; SameSite=Lax`;
         }
         
         set({
           user,
-          token,
+          accessToken,
+          refreshToken,
           isAuthenticated: true,
         });
       },
 
-      logout: () => {
-        // Clear localStorage
+      logout: async () => {
+        // Call logout API to revoke refresh token
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
+          const refreshToken = localStorage.getItem('refreshToken');
+          
+          if (refreshToken) {
+            try {
+              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+              await fetch(`${apiUrl}/auth/logout`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                },
+                body: JSON.stringify({ refreshToken }),
+              });
+            } catch (error) {
+              console.error('Logout API call failed:', error);
+            }
+          }
+
+          // Clear localStorage
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
           localStorage.removeItem('user');
           
           // Clear the Zustand persist storage
@@ -59,25 +83,39 @@ export const useAuthStore = create<AuthStore>()(
         
         set({
           user: null,
-          token: null,
+          accessToken: null,
+          refreshToken: null,
           isAuthenticated: false,
         });
       },
 
       checkAuth: () => {
         const state = get();
-        return state.isAuthenticated && !!state.token;
+        return state.isAuthenticated && !!state.accessToken;
       },
 
       setUser: (user: User) => {
         set({ user });
+      },
+
+      updateTokens: (accessToken: string, refreshToken: string) => {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+          
+          // Update cookie
+          document.cookie = `token=${accessToken}; path=/; max-age=${60 * 15}; SameSite=Lax`;
+        }
+        
+        set({ accessToken, refreshToken });
       },
     }),
     {
       name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
     }

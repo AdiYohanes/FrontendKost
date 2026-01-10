@@ -124,8 +124,8 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const breadcrumbs = generateBreadcrumbs(pathname, roomData, residentData);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push("/login");
   };
 

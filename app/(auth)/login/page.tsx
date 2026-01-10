@@ -57,8 +57,8 @@ function LoginForm() {
       // Call login API
       const response = await authApi.login(data);
 
-      // Update auth store
-      login(response.user, response.accessToken);
+      // Update auth store with both tokens
+      login(response.user, response.accessToken, response.refreshToken);
 
       // Check for redirect parameter
       const redirectTo = searchParams.get("redirect");

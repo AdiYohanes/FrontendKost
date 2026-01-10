@@ -27,8 +27,8 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
     user?.role ? item.roles.includes(user.role) : false
   );
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     onOpenChange(false);
     router.push("/login");
   };
