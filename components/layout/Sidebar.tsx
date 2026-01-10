@@ -21,13 +21,19 @@ export function Sidebar() {
 
   // Fetch unread count
   const fetchUnreadCount = useCallback(async () => {
+    // Only fetch if user is logged in
+    if (!user) return;
+    
     try {
       const data = await notificationHistoryApi.getUnreadCount();
       setUnreadCount(data.count);
     } catch (error) {
-      console.error('Error fetching unread count:', error);
+      // Silently fail - don't show error to user
+      // This can happen if backend endpoint is not available yet
+      console.debug('Notification count not available:', error);
+      setUnreadCount(0);
     }
-  }, []);
+  }, [user]);
 
   // Initialize sidebar state on mount and window resize
   useEffect(() => {

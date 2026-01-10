@@ -10,13 +10,12 @@
 Dokumen ini berisi status implementasi fitur-fitur baru dari backend ke frontend, termasuk yang sudah selesai, yang perlu perbaikan, dan improvement yang direkomendasikan.
 
 **Latest Updates (v1.7):**
-- ✅ Added notification dropdown in sidebar
-- ✅ Shows 5 latest unread notifications
-- ✅ Badge with unread count (99+ for >99)
-- ✅ Quick access to mark as read
-- ✅ Mark all as read button
+- ✅ Added unread notification badge to Notifications menu in sidebar
+- ✅ Badge shows unread count (99+ for >99)
+- ✅ Badge visible in both expanded and collapsed sidebar
+- ✅ Badge also shown in mobile sidebar
 - ✅ Auto-refresh every 30 seconds
-- ✅ Works in both expanded and collapsed sidebar
+- ✅ Red badge indicator for better visibility
 
 ---
 
