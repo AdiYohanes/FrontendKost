@@ -16,10 +16,12 @@ import { Resident } from '../api/types';
 /**
  * Hook to fetch all residents
  */
-export function useResidents(params?: ResidentQueryParams) {
+export function useResidents(params?: ResidentQueryParams & { enabled?: boolean }) {
+  const { enabled, ...queryParams } = params || {};
   return useQuery({
-    queryKey: queryKeys.residents.all(params),
-    queryFn: () => residentsApi.getAll(params),
+    queryKey: queryKeys.residents.all(queryParams),
+    queryFn: () => residentsApi.getAll(queryParams),
+    enabled: enabled !== false,
   });
 }
 

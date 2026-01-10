@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useAuthStore } from "@/lib/stores/authStore";
 import { useRooms } from "@/lib/hooks/useRooms";
 import { useResidents } from "@/lib/hooks/useResidents";
 import { useInvoices } from "@/lib/hooks/useInvoices";
@@ -50,10 +51,15 @@ export const GlobalSearch = forwardRef<GlobalSearchRef>((props, ref) => {
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { user } = useAuthStore();
 
-  // Fetch data
-  const { data: rooms } = useRooms();
-  const { data: residents } = useResidents();
+  // Check permissions
+  const canAccessRooms = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+  const canAccessResidents = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+
+  // Fetch data based on permissions
+  const { data: rooms } = useRooms({ enabled: canAccessRooms });
+  const { data: residents } = useResidents({ enabled: canAccessResidents });
   const { data: invoices } = useInvoices();
   const { data: complaints } = useComplaints();
   const { data: fridgeItems } = useFridgeItems();

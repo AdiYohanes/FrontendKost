@@ -11,10 +11,11 @@ import { Room } from '../api/types';
 /**
  * Hook to fetch all rooms
  */
-export function useRooms() {
+export function useRooms(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: queryKeys.rooms.all,
     queryFn: () => roomsApi.getAll(),
+    enabled: options?.enabled !== false,
   });
 }
 
