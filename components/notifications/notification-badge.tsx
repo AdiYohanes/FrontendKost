@@ -13,14 +13,9 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onClick })
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
-    try {
-      const data = await notificationHistoryApi.getUnreadCount();
-      setUnreadCount(data.count);
-    } catch (error) {
-      // Silently fail - endpoint might not be available yet
-      console.debug('Notification count not available:', error);
-      setUnreadCount(0);
-    }
+    // Service handles errors gracefully and returns { count: 0 } if endpoint not available
+    const data = await notificationHistoryApi.getUnreadCount();
+    setUnreadCount(data.count);
   }, []);
 
   useEffect(() => {

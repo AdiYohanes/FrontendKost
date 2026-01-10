@@ -24,15 +24,9 @@ export function Sidebar() {
     // Only fetch if user is logged in
     if (!user) return;
     
-    try {
-      const data = await notificationHistoryApi.getUnreadCount();
-      setUnreadCount(data.count);
-    } catch (error) {
-      // Silently fail - don't show error to user
-      // This can happen if backend endpoint is not available yet
-      console.debug('Notification count not available:', error);
-      setUnreadCount(0);
-    }
+    // Service handles errors gracefully and returns { count: 0 } if endpoint not available
+    const data = await notificationHistoryApi.getUnreadCount();
+    setUnreadCount(data.count);
   }, [user]);
 
   // Initialize sidebar state on mount and window resize

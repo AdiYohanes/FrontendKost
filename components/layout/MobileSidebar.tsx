@@ -30,15 +30,9 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
     // Only fetch if user is logged in
     if (!user) return;
     
-    try {
-      const data = await notificationHistoryApi.getUnreadCount();
-      setUnreadCount(data.count);
-    } catch (error) {
-      // Silently fail - don't show error to user
-      // This can happen if backend endpoint is not available yet
-      console.debug('Notification count not available:', error);
-      setUnreadCount(0);
-    }
+    // Service handles errors gracefully and returns { count: 0 } if endpoint not available
+    const data = await notificationHistoryApi.getUnreadCount();
+    setUnreadCount(data.count);
   }, [user]);
 
   // Fetch unread count on mount and poll every 30 seconds

@@ -85,9 +85,15 @@ export const notificationHistoryApi = {
    * @returns Unread count
    */
   getUnreadCount: async (): Promise<{ count: number }> => {
-    const response = await apiClient.get<{ count: number }>(
-      '/notifications/history/unread-count'
-    );
-    return response.data;
+    try {
+      const response = await apiClient.get<{ count: number }>(
+        '/notifications/history/unread-count'
+      );
+      return response.data;
+    } catch (error) {
+      // Return 0 if endpoint not available (404) or any other error
+      // This prevents error logging for optional features
+      return { count: 0 };
+    }
   },
 };
