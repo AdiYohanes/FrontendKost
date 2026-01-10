@@ -9,11 +9,14 @@
 
 Dokumen ini berisi status implementasi fitur-fitur baru dari backend ke frontend, termasuk yang sudah selesai, yang perlu perbaikan, dan improvement yang direkomendasikan.
 
-**Latest Updates (v1.6):**
-- ✅ Fixed role-based access control for PENGHUNI users
-- ✅ Added permission checks in GlobalSearch for all resources
-- ✅ PENGHUNI users can now login without 403 errors
-- ✅ Global search restricted to OWNER and PENJAGA roles
+**Latest Updates (v1.7):**
+- ✅ Added notification dropdown in sidebar
+- ✅ Shows 5 latest unread notifications
+- ✅ Badge with unread count (99+ for >99)
+- ✅ Quick access to mark as read
+- ✅ Mark all as read button
+- ✅ Auto-refresh every 30 seconds
+- ✅ Works in both expanded and collapsed sidebar
 
 ---
 
@@ -228,6 +231,10 @@ if (error.response?.status === 429) {
 - ✅ Load more pagination
 - ✅ Empty state UI
 - ✅ Responsive design
+- ✅ **NEW: Notification dropdown in sidebar**
+- ✅ **NEW: Shows 5 latest unread notifications**
+- ✅ **NEW: Quick mark as read from dropdown**
+- ✅ **NEW: Works in collapsed sidebar mode**
 
 **Files Created:**
 - ✅ `lib/api/services/notification-history.ts` - API service
@@ -235,6 +242,7 @@ if (error.response?.status === 429) {
 - ✅ `components/notifications/notification-badge.tsx` - Badge component
 - ✅ `components/notifications/notification-item.tsx` - Item component
 - ✅ `components/notifications/notification-list.tsx` - List component
+- ✅ `components/notifications/notification-dropdown.tsx` - **NEW: Dropdown component**
 - ✅ `app/(dashboard)/notifications/page.tsx` - Notifications page
 
 **Features:**
@@ -247,6 +255,14 @@ if (error.response?.status === 429) {
 - ✅ Icon per notification type
 - ✅ Relative time display (e.g., "2 jam yang lalu")
 - ✅ Visual indicator untuk unread (blue border & background)
+- ✅ **NEW: Dropdown quick view in sidebar**
+- ✅ **NEW: Badge on sidebar notification button**
+- ✅ **NEW: Auto-refresh unread count**
+
+**Notification Access Points:**
+1. **Sidebar Dropdown** - Quick view of 5 latest unread notifications
+2. **Notifications Menu** - Full page with all notifications, filters, pagination
+3. **Badge Indicator** - Shows unread count on both access points
 
 **Note:** Backend API endpoints sudah tersedia dan siap digunakan
 
@@ -684,6 +700,6 @@ const { data: fridgeItems } = useFridgeItems({ enabled: canAccessFridge });
 
 ---
 
-**Status:** ✅ Ready to Test (All Issues Fixed + Role-Based Access Control)  
+**Status:** ✅ Ready to Test (All Issues Fixed + Notification Dropdown)  
 **Last Updated:** 10 Januari 2026  
-**Version:** 1.6
+**Version:** 1.7

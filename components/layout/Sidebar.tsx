@@ -9,14 +9,25 @@ import { NAV_ITEMS } from "@/lib/constants/navigation";
 import { Building2, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { notificationHistoryApi } from "@/lib/api/services/notification-history";
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { sidebarOpen, toggleSidebar, initializeSidebar } = useUIStore();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread count
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const data = await notificationHistoryApi.getUnreadCount();
+      setUnreadCount(data.count);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  }, []);
 
   // Initialize sidebar state on mount and window resize
   useEffect(() => {
@@ -32,6 +43,17 @@ export function Sidebar() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [initializeSidebar, sidebarOpen]);
+
+  // Fetch unread count on mount and poll every 30 seconds
+  useEffect(() => {
+    fetchUnreadCount();
+
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchUnreadCount]);
 
   // Filter nav items based on user role
   const filteredNavItems = NAV_ITEMS.filter((item) =>
@@ -129,11 +151,6 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Notification Dropdown */}
-      <div className="px-4 pb-2">
-        <NotificationDropdown collapsed={!sidebarOpen} />
-      </div>
-
       {/* Navigation Menu */}
       <ScrollArea className="flex-1 px-4">
         <nav className="space-y-1 pb-4" aria-label="Main menu">
@@ -141,13 +158,14 @@ export function Sidebar() {
             const Icon = item.icon;
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
+            const isNotificationMenu = item.href === "/notifications";
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                  "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 relative",
                   "active:scale-[0.98]",
                   isActive
                     ? "bg-[#1baa56] text-white shadow-sm"
@@ -158,8 +176,22 @@ export function Sidebar() {
                 aria-label={item.title}
                 aria-current={isActive ? "page" : undefined}
               >
-                <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                {sidebarOpen && <span>{item.title}</span>}
+                <div className="relative">
+                  <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                  {isNotificationMenu && unreadCount > 0 && !sidebarOpen && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </div>
+                {sidebarOpen && (
+                  <span className="flex-1">{item.title}</span>
+                )}
+                {sidebarOpen && isNotificationMenu && unreadCount > 0 && (
+                  <span className="flex items-center justify-center min-w-[20px] h-[20px] px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}

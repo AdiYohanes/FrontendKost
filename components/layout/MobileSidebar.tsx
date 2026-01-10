@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRouter } from "next/navigation";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useEffect, useState, useCallback } from "react";
+import { notificationHistoryApi } from "@/lib/api/services/notification-history";
 
 interface MobileSidebarProps {
   open: boolean;
@@ -21,6 +23,28 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread count
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const data = await notificationHistoryApi.getUnreadCount();
+      setUnreadCount(data.count);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  }, []);
+
+  // Fetch unread count on mount and poll every 30 seconds
+  useEffect(() => {
+    fetchUnreadCount();
+
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchUnreadCount]);
 
   // Filter nav items based on user role
   const filteredNavItems = NAV_ITEMS.filter((item) =>
@@ -86,6 +110,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
               const Icon = item.icon;
               const isActive =
                 pathname === item.href || pathname.startsWith(item.href + "/");
+              const isNotificationMenu = item.href === "/notifications";
 
               return (
                 <Link
@@ -93,7 +118,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
                   href={item.href}
                   onClick={() => onOpenChange(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-4 text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-3 rounded-xl px-4 text-sm font-medium transition-all duration-200 relative",
                     "min-h-[44px] py-3", // Ensure minimum touch target of 44px
                     "active:scale-[0.98]",
                     isActive
@@ -103,7 +128,12 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                  <span>{item.title}</span>
+                  <span className="flex-1">{item.title}</span>
+                  {isNotificationMenu && unreadCount > 0 && (
+                    <span className="flex items-center justify-center min-w-[20px] h-[20px] px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
