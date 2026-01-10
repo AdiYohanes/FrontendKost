@@ -14,10 +14,12 @@ import type {
 /**
  * Hook to fetch all complaints
  */
-export function useComplaints(params?: { status?: string }) {
+export function useComplaints(params?: { status?: string; enabled?: boolean }) {
+  const { enabled, ...queryParams } = params || {};
   return useQuery({
-    queryKey: queryKeys.complaints.all(params),
-    queryFn: () => complaintsApi.getAll(params),
+    queryKey: queryKeys.complaints.all(queryParams),
+    queryFn: () => complaintsApi.getAll(queryParams),
+    enabled: enabled !== false,
   });
 }
 

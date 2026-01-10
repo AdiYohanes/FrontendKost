@@ -53,16 +53,20 @@ export const GlobalSearch = forwardRef<GlobalSearchRef>((props, ref) => {
   const router = useRouter();
   const { user } = useAuthStore();
 
-  // Check permissions
+  // Check permissions - PENGHUNI can only see their own data in dedicated pages
+  // Global search is only for OWNER and PENJAGA who can see all data
   const canAccessRooms = user?.role === 'OWNER' || user?.role === 'PENJAGA';
   const canAccessResidents = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+  const canAccessInvoices = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+  const canAccessComplaints = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+  const canAccessFridge = user?.role === 'OWNER' || user?.role === 'PENJAGA';
 
   // Fetch data based on permissions
   const { data: rooms } = useRooms({ enabled: canAccessRooms });
   const { data: residents } = useResidents({ enabled: canAccessResidents });
-  const { data: invoices } = useInvoices();
-  const { data: complaints } = useComplaints();
-  const { data: fridgeItems } = useFridgeItems();
+  const { data: invoices } = useInvoices({ enabled: canAccessInvoices });
+  const { data: complaints } = useComplaints({ enabled: canAccessComplaints });
+  const { data: fridgeItems } = useFridgeItems({ enabled: canAccessFridge });
 
   // Expose focus method to parent
   useImperativeHandle(ref, () => ({

@@ -15,10 +15,12 @@ import { Invoice, InvoiceStatus } from '../api/types';
 /**
  * Hook to fetch all invoices
  */
-export function useInvoices(params?: InvoiceQueryParams) {
+export function useInvoices(params?: InvoiceQueryParams & { enabled?: boolean }) {
+  const { enabled, ...queryParams } = params || {};
   return useQuery({
-    queryKey: queryKeys.invoices.all(params),
-    queryFn: () => invoicesApi.getAll(params),
+    queryKey: queryKeys.invoices.all(queryParams),
+    queryFn: () => invoicesApi.getAll(queryParams),
+    enabled: enabled !== false,
   });
 }
 

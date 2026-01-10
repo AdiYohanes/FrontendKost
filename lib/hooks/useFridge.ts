@@ -11,10 +11,11 @@ import { FridgeItem } from '../api/types';
 /**
  * Hook to fetch all fridge items
  */
-export function useFridgeItems() {
+export function useFridgeItems(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: queryKeys.fridge.all,
     queryFn: () => fridgeApi.getAll(),
+    enabled: options?.enabled !== false,
   });
 }
 
