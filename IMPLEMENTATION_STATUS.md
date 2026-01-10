@@ -1,7 +1,7 @@
 # 📊 Implementation Status - Management Kost
 
 **Last Updated:** 10 Januari 2026  
-**Version:** 1.5
+**Version:** 1.6
 
 ---
 
@@ -9,13 +9,11 @@
 
 Dokumen ini berisi status implementasi fitur-fitur baru dari backend ke frontend, termasuk yang sudah selesai, yang perlu perbaikan, dan improvement yang direkomendasikan.
 
-**Latest Updates (v1.5):**
-- ✅ Implemented complete notification history system
-- ✅ Added notification badge dengan unread count
-- ✅ Created notifications page dengan filter & pagination
-- ✅ Mark as read & delete functionality
-- ✅ Real-time unread count polling
-- ✅ All frontend issues fixed
+**Latest Updates (v1.6):**
+- ✅ Fixed role-based access control for PENGHUNI users
+- ✅ Added permission checks in GlobalSearch for all resources
+- ✅ PENGHUNI users can now login without 403 errors
+- ✅ Global search restricted to OWNER and PENJAGA roles
 
 ---
 
@@ -569,6 +567,68 @@ POST /api/notifications/test/push - Test notification
 
 ---
 
+## 🔒 Role-Based Access Control
+
+### Global Search Permissions ✅
+**Status:** SELESAI
+
+**Issue:** PENGHUNI users mendapat 403 error saat login karena GlobalSearch mencoba fetch semua data
+
+**Root Cause:**
+- GlobalSearch component fetch data untuk rooms, residents, invoices, complaints, dan fridge items
+- PENGHUNI users tidak punya permission untuk akses rooms dan residents endpoints
+- Backend mengembalikan 403 error untuk unauthorized access
+
+**Solution Implemented:**
+```typescript
+// lib/hooks/useInvoices.ts, useComplaints.ts, useFridge.ts
+// Added enabled option to all hooks
+export function useInvoices(params?: InvoiceQueryParams & { enabled?: boolean }) {
+  const { enabled, ...queryParams } = params || {};
+  return useQuery({
+    queryKey: queryKeys.invoices.all(queryParams),
+    queryFn: () => invoicesApi.getAll(queryParams),
+    enabled: enabled !== false, // Only fetch if enabled
+  });
+}
+
+// components/layout/GlobalSearch.tsx
+// Check permissions before fetching
+const canAccessRooms = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+const canAccessResidents = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+const canAccessInvoices = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+const canAccessComplaints = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+const canAccessFridge = user?.role === 'OWNER' || user?.role === 'PENJAGA';
+
+// Fetch data based on permissions
+const { data: rooms } = useRooms({ enabled: canAccessRooms });
+const { data: residents } = useResidents({ enabled: canAccessResidents });
+const { data: invoices } = useInvoices({ enabled: canAccessInvoices });
+const { data: complaints } = useComplaints({ enabled: canAccessComplaints });
+const { data: fridgeItems } = useFridgeItems({ enabled: canAccessFridge });
+```
+
+**Changes:**
+- ✅ Added `enabled` option to `useInvoices` hook
+- ✅ Added `enabled` option to `useComplaints` hook
+- ✅ Added `enabled` option to `useFridgeItems` hook
+- ✅ Updated `GlobalSearch` to check permissions for all resources
+- ✅ PENGHUNI users can now login without 403 errors
+- ✅ Global search only available for OWNER and PENJAGA roles
+
+**Files Modified:**
+- `lib/hooks/useInvoices.ts` - Added enabled option
+- `lib/hooks/useComplaints.ts` - Added enabled option
+- `lib/hooks/useFridge.ts` - Added enabled option
+- `components/layout/GlobalSearch.tsx` - Permission checks
+
+**Note:** 
+- PENGHUNI users dapat melihat data mereka sendiri di halaman dedicated (invoices, complaints, fridge)
+- Global search hanya untuk OWNER dan PENJAGA yang bisa melihat semua data
+- Backend sudah handle filtering data by user untuk PENGHUNI role
+
+---
+
 ## 🐛 Known Limitations
 
 1. **Browser Support:**
@@ -624,6 +684,6 @@ POST /api/notifications/test/push - Test notification
 
 ---
 
-**Status:** ✅ Ready to Test (All Issues Fixed + Notification History Complete)  
+**Status:** ✅ Ready to Test (All Issues Fixed + Role-Based Access Control)  
 **Last Updated:** 10 Januari 2026  
-**Version:** 1.5
+**Version:** 1.6
