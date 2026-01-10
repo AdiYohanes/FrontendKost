@@ -43,6 +43,7 @@ import { format, isPast, parseISO } from "date-fns";
 import { InvoiceStatus, UtilityType } from "@/lib/api/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils/errorHandler";
+import { logger } from "@/lib/utils/logger";
 
 export default function InvoiceDetailsPage() {
   const params = useParams();
@@ -141,7 +142,7 @@ export default function InvoiceDetailsPage() {
       );
       setIsPaymentDialogOpen(false);
     } catch (error) {
-      console.error('Payment submission error:', error);
+      logger.error('Payment submission error:', error);
       toast.error(getErrorMessage(error));
     }
   };

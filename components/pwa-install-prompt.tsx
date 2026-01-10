@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Download, X } from "lucide-react";
+import { logger } from "@/lib/utils/logger";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -30,7 +31,7 @@ export function PWAInstallPrompt() {
 
       // Don't show prompt if already installed
       if (isStandalone) {
-        console.log("PWA is already installed");
+        logger.log("PWA is already installed");
         return true;
       }
 
@@ -51,7 +52,7 @@ export function PWAInstallPrompt() {
 
       // Don't show prompt if dismissed within last 7 days
       if (daysSinceDismissed < 7) {
-        console.log(
+        logger.log(
           `PWA install prompt dismissed ${Math.floor(daysSinceDismissed)} days ago`
         );
         return;
@@ -60,7 +61,7 @@ export function PWAInstallPrompt() {
 
     // Handle beforeinstallprompt event
     const handler = (e: Event) => {
-      console.log("beforeinstallprompt event fired");
+      logger.log("beforeinstallprompt event fired");
 
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
@@ -76,7 +77,7 @@ export function PWAInstallPrompt() {
 
     // Handle app installed event
     const installedHandler = () => {
-      console.log("PWA was installed");
+      logger.log("PWA was installed");
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);
@@ -96,7 +97,7 @@ export function PWAInstallPrompt() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      console.error("No deferred prompt available");
+      logger.error("No deferred prompt available");
       return;
     }
 
@@ -109,13 +110,13 @@ export function PWAInstallPrompt() {
       // Wait for the user to respond to the prompt
       const { outcome } = await deferredPrompt.userChoice;
 
-      console.log(`User response to the install prompt: ${outcome}`);
+      logger.log(`User response to the install prompt: ${outcome}`);
 
       if (outcome === "accepted") {
-        console.log("User accepted the install prompt");
+        logger.log("User accepted the install prompt");
         // The appinstalled event will handle cleanup
       } else {
-        console.log("User dismissed the install prompt");
+        logger.log("User dismissed the install prompt");
         // Store dismissal timestamp
         localStorage.setItem("pwa-install-dismissed", new Date().toISOString());
       }
@@ -124,14 +125,14 @@ export function PWAInstallPrompt() {
       setDeferredPrompt(null);
       setShowPrompt(false);
     } catch (error) {
-      console.error("Error showing install prompt:", error);
+      logger.error("Error showing install prompt:", error);
     } finally {
       setIsInstalling(false);
     }
   };
 
   const handleDismiss = () => {
-    console.log("User manually dismissed install prompt");
+    logger.log("User manually dismissed install prompt");
 
     // Store dismissal timestamp
     localStorage.setItem("pwa-install-dismissed", new Date().toISOString());

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import dynamic from "next/dynamic";
+import { logger } from "@/lib/utils/logger";
 
 // Dynamically import heavy chart components for code splitting
 const LineChart = dynamic(
@@ -112,7 +113,7 @@ export default function ReportsPage() {
       await generatePDFReport(report, startDate, endDate);
       toast.success("Report exported successfully");
     } catch (error) {
-      console.error("Error exporting PDF:", error);
+      logger.error("Error exporting PDF:", error);
       toast.error("Failed to export report");
     } finally {
       setIsExporting(false);
@@ -139,7 +140,7 @@ export default function ReportsPage() {
       );
       toast.success("Report with charts exported successfully");
     } catch (error) {
-      console.error("Error exporting PDF with charts:", error);
+      logger.error("Error exporting PDF with charts:", error);
       toast.error("Failed to export report with charts");
     } finally {
       setIsExporting(false);

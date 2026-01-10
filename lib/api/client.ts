@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * API Client Configuration
@@ -67,21 +68,21 @@ apiClient.interceptors.response.use(
         
         case 403:
           // Forbidden - user doesn't have permission
-          console.error('Access denied:', error.response.data);
+          logger.error('Access denied:', error.response.data);
           break;
         
         case 404:
           // Not found
-          console.error('Resource not found:', error.response.data);
+          logger.error('Resource not found:', error.response.data);
           break;
         
         case 500:
           // Server error
-          console.error('Server error:', error.response.data);
+          logger.error('Server error:', error.response.data);
           break;
         
         default:
-          console.error('API error:', {
+          logger.error('API error:', {
             status,
             data: error.response.data,
             url: error.config?.url,
@@ -90,10 +91,10 @@ apiClient.interceptors.response.use(
       }
     } else if (error.request) {
       // Request made but no response received
-      console.error('Network error - no response received');
+      logger.error('Network error - no response received');
     } else {
       // Error in request setup
-      console.error('Request setup error:', error.message);
+      logger.error('Request setup error:', error.message);
     }
     
     return Promise.reject(error);

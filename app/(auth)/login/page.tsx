@@ -24,6 +24,7 @@ import { loginSchema, type LoginFormData } from "@/lib/validations/auth.schema";
 import { authApi } from "@/lib/api/services/auth";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { handleApiError } from "@/lib/api/errorHandler";
+import { logger } from "@/lib/utils/logger";
 
 function LoginForm() {
   const router = useRouter();
@@ -65,7 +66,7 @@ function LoginForm() {
       // Redirect to original page or dashboard
       router.push(redirectTo || "/dashboard");
     } catch (err: unknown) {
-      console.error("Login error:", err);
+      logger.error("Login error:", err);
 
       if (err instanceof AxiosError) {
         const errorMessage = handleApiError(err);

@@ -5,6 +5,7 @@ import { useOnlineStatus } from "./useOnlineStatus";
 import { useOfflineStore } from "../stores/offlineStore";
 import apiClient from "../api/client";
 import { toast } from "sonner";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Maximum number of retry attempts for a pending action
@@ -45,7 +46,7 @@ export function useOfflineSync() {
         try {
           // Check if we've exceeded max retry attempts
           if (action.retryCount >= MAX_RETRY_ATTEMPTS) {
-            console.warn(`Action ${action.id} exceeded max retry attempts, removing from queue`);
+            logger.warn(`Action ${action.id} exceeded max retry attempts, removing from queue`);
             removePendingAction(action.id);
             failureCount++;
             continue;
@@ -65,7 +66,7 @@ export function useOfflineSync() {
           // Failed - increment retry count
           incrementRetryCount(action.id);
           failureCount++;
-          console.error(`Failed to sync action ${action.id}:`, error);
+          logger.error(`Failed to sync action ${action.id}:`, error);
         }
       }
 

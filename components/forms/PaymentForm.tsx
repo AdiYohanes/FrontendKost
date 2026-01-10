@@ -27,9 +27,7 @@ const paymentSchema = z.object({
     .number()
     .min(1, "Payment amount must be at least 1")
     .positive("Payment amount must be positive"),
-  paymentMethod: z.enum(["cash", "transfer", "e-wallet", "other"], {
-    errorMap: () => ({ message: "Please select a payment method" }),
-  }),
+  paymentMethod: z.enum(["cash", "transfer", "e-wallet", "other"]),
   paymentDate: z.string().min(1, "Payment date is required"),
   notes: z.string().optional(),
 });

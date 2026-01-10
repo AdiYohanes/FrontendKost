@@ -18,27 +18,38 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kost Management System",
-  description: "Progressive Web App for managing boarding house operations",
-  applicationName: "Kost Management",
+  title: {
+    default: 'Management Kost - Kelola Kost Anda dengan Mudah',
+    template: '%s | Management Kost',
+  },
+  description: 'Aplikasi manajemen kost profesional dengan fitur lengkap untuk mengelola kamar, penghuni, tagihan, dan laporan keuangan.',
+  keywords: ['manajemen kost', 'kost management', 'boarding house', 'rental management', 'sistem kost', 'aplikasi kost'],
+  authors: [{ name: 'Management Kost Team' }],
+  creator: 'Management Kost Team',
+  applicationName: "Management Kost",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Kost Management",
+    title: "Management Kost",
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: "website",
-    siteName: "Kost Management System",
-    title: "Kost Management System",
-    description: "Progressive Web App for managing boarding house operations",
+    locale: 'id_ID',
+    siteName: "Management Kost",
+    title: "Management Kost - Kelola Kost Anda dengan Mudah",
+    description: "Aplikasi manajemen kost profesional dengan fitur lengkap untuk mengelola kamar, penghuni, tagihan, dan laporan keuangan.",
   },
   twitter: {
-    card: "summary",
-    title: "Kost Management System",
-    description: "Progressive Web App for managing boarding house operations",
+    card: "summary_large_image",
+    title: "Management Kost",
+    description: "Kelola kost Anda dengan mudah dan profesional",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   manifest: "/manifest.json",
   icons: {

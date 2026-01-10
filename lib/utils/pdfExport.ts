@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { format } from "date-fns";
+import { logger } from "@/lib/utils/logger";
 
 interface ExpensesByCategory {
   MAINTENANCE: number;
@@ -403,7 +404,7 @@ export async function generatePDFReportWithCharts(
     const fileName = `Financial_Report_${format(new Date(startDate), "yyyy-MM-dd")}_to_${format(new Date(endDate), "yyyy-MM-dd")}.pdf`;
     pdf.save(fileName);
   } catch (error) {
-    console.error("Error generating PDF with charts:", error);
+    logger.error("Error generating PDF with charts:", error);
     // Fallback to text-only PDF
     await generatePDFReport(report, startDate, endDate);
   }

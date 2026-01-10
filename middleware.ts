@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * Auth Middleware
@@ -33,7 +34,7 @@ function decodeToken(token: string): { exp: number } | null {
 
     return decoded;
   } catch (error) {
-    console.error('Error decoding token:', error);
+    logger.error('Error decoding token:', error);
     return null;
   }
 }
@@ -75,7 +76,7 @@ export function middleware(request: NextRequest) {
       tokenFromStorage = parsed.state?.token || null;
       isAuthenticated = parsed.state?.isAuthenticated || false;
     } catch (error) {
-      console.error('Error parsing auth storage:', error);
+      logger.error('Error parsing auth storage:', error);
     }
   }
 
