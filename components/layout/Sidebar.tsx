@@ -45,12 +45,18 @@ export function Sidebar() {
   }, [initializeSidebar, sidebarOpen]);
 
   // Fetch unread count on mount and poll every 30 seconds
+  // Fetch unread count on mount and poll every 30 seconds
   useEffect(() => {
-    fetchUnreadCount();
+    const fetchIfVisible = () => {
+      // Only fetch if sidebar is visible (desktop/tablet)
+      if (typeof window !== "undefined" && window.innerWidth >= 768) {
+        fetchUnreadCount();
+      }
+    };
 
-    const interval = setInterval(() => {
-      fetchUnreadCount();
-    }, 30000);
+    fetchIfVisible();
+
+    const interval = setInterval(fetchIfVisible, 30000);
 
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);

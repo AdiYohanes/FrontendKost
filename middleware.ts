@@ -9,7 +9,7 @@ import { logger } from '@/lib/utils/logger';
  */
 
 // Public routes that don't require authentication
-const publicRoutes = ['/login'];
+const publicRoutes = ['/login', '/'];
 
 // Routes that should redirect to dashboard if already authenticated
 const authRoutes = ['/login'];
@@ -100,7 +100,7 @@ export function middleware(request: NextRequest) {
   // If user is authenticated and trying to access auth routes (like login)
   // Redirect to dashboard
   if (isAuthenticated && isAuthRoute) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // If user is not authenticated and trying to access protected routes

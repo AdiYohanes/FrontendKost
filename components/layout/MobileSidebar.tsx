@@ -35,16 +35,18 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
     setUnreadCount(data.count);
   }, [user]);
 
-  // Fetch unread count on mount and poll every 30 seconds
+  // Fetch unread count when sidebar is open and poll every 30 seconds
   useEffect(() => {
-    fetchUnreadCount();
-
-    const interval = setInterval(() => {
+    if (open) {
       fetchUnreadCount();
-    }, 30000);
 
-    return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+      const interval = setInterval(() => {
+        fetchUnreadCount();
+      }, 30000);
+
+      return () => clearInterval(interval);
+    }
+  }, [open, fetchUnreadCount]);
 
   // Filter nav items based on user role
   const filteredNavItems = NAV_ITEMS.filter((item) =>
