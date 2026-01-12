@@ -18,7 +18,7 @@ export const queryKeys = {
   utilities: {
     byResident: (
       residentId: string,
-      params?: { utilityType?: string; isBilled?: boolean }
+      params?: { type?: string; status?: string }
     ) => ['utilities', 'resident', residentId, params] as const,
   },
   invoices: {

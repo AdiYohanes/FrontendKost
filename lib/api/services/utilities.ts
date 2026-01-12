@@ -16,8 +16,8 @@ export interface CreateUtilityDto {
 }
 
 export interface UtilityQueryParams {
-  utilityType?: UtilityType;
-  isBilled?: boolean;
+  type?: UtilityType;
+  status?: 'billed' | 'unbilled';
 }
 
 export const utilitiesApi = {

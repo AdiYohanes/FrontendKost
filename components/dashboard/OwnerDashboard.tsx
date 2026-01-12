@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,25 +17,75 @@ import {
   Clock,
 } from "lucide-react";
 
+import { useEffect, useState } from "react";
+import { roomsApi } from "@/lib/api/services/rooms";
+import { residentsApi } from "@/lib/api/services/residents";
+import { RoomStatus } from "@/lib/api/types";
+import { toast } from "sonner";
+
 export function OwnerDashboard() {
-  // Sample data - will be replaced with real API data
+  const router = useRouter();
+  const [stats, setStats] = useState({
+    totalRooms: 0,
+    occupiedRooms: 0,
+    availableRooms: 0,
+    maintenanceRooms: 0,
+    activeResidents: 0,
+    isLoading: true
+  });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [rooms, residents] = await Promise.all([
+          roomsApi.getAll(),
+          residentsApi.getAll({ isActive: true })
+        ]);
+
+        const occupied = rooms.filter(r => r.status === RoomStatus.OCCUPIED).length;
+        const available = rooms.filter(r => r.status === RoomStatus.AVAILABLE).length;
+        const maintenance = rooms.filter(r => r.status === RoomStatus.MAINTENANCE).length;
+
+        setStats({
+          totalRooms: rooms.length,
+          occupiedRooms: occupied,
+          availableRooms: available,
+          maintenanceRooms: maintenance,
+          activeResidents: residents.length,
+          isLoading: false
+        });
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+        toast.error("Gagal memuat data dashboard");
+        setStats(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const occupancyRate = stats.totalRooms > 0 
+    ? Math.round((stats.occupiedRooms / stats.totalRooms) * 100) 
+    : 0;
+
+  // Real data mapped to UI
   const keyMetrics = [
     {
       icon: Building2,
       label: "Total Rooms",
-      value: "24",
-      subtext: "18 occupied, 6 available",
+      value: stats.totalRooms.toString(),
+      subtext: `${stats.occupiedRooms} occupied, ${stats.availableRooms} available`,
       color: "bg-[#1baa56]/10 text-[#1baa56]",
-      trend: "+2 this month",
+      trend: "Real-time",
       trendUp: true,
     },
     {
       icon: Users,
       label: "Active Residents",
-      value: "18",
-      subtext: "75% occupancy rate",
+      value: stats.activeResidents.toString(),
+      subtext: `${occupancyRate}% occupancy rate`,
       color: "bg-[#1baa56]/10 text-[#1baa56]",
-      trend: "+3 this month",
+      trend: "Real-time",
       trendUp: true,
     },
     {
@@ -58,11 +109,11 @@ export function OwnerDashboard() {
   ];
 
   const occupancyOverview = {
-    total: 24,
-    occupied: 18,
-    available: 6,
-    maintenance: 0,
-    occupancyRate: 75,
+    total: stats.totalRooms,
+    occupied: stats.occupiedRooms,
+    available: stats.availableRooms,
+    maintenance: stats.maintenanceRooms,
+    occupancyRate: occupancyRate,
   };
 
   const recentActivities = [
@@ -208,6 +259,7 @@ export function OwnerDashboard() {
                   variant="outline"
                   size="sm"
                   className="rounded-full border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                  onClick={() => router.push("/rooms")}
                 >
                   View All Rooms
                 </Button>

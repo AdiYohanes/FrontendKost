@@ -57,9 +57,14 @@ export default function LaundryDetailPage() {
 
   // Get payment badge variant
   const getPaymentBadge = (paymentStatus: LaundryPaymentStatus) => {
-    return paymentStatus === "PAID"
-      ? { variant: "default" as const, label: "Paid" }
-      : { variant: "destructive" as const, label: "Unpaid" };
+    switch (paymentStatus) {
+      case "PAID":
+        return { variant: "default" as const, label: "Paid" };
+      case "PARTIAL":
+        return { variant: "secondary" as const, label: "Partial" };
+      default:
+        return { variant: "destructive" as const, label: "Unpaid" };
+    }
   };
 
   // Validate status transition
@@ -192,15 +197,21 @@ export default function LaundryDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground">Resident</p>
               <p className="font-medium">
-                {transaction.resident?.user?.name ||
-                  transaction.resident?.user?.username ||
-                  "N/A"}
+                {transaction.resident
+                  ? ("name" in transaction.resident 
+                      ? transaction.resident.name 
+                      : (transaction.resident as any)?.user?.name || "Unknown")
+                  : "Resident #" + transaction.residentId.slice(0, 5)}
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Room</p>
               <p className="font-medium">
-                {transaction.resident?.room?.roomNumber || "N/A"}
+                {transaction.resident
+                  ? ("roomNumber" in transaction.resident 
+                      ? transaction.resident.roomNumber 
+                      : (transaction.resident as any)?.room?.roomNumber || "N/A")
+                  : "N/A"}
               </p>
             </div>
             <div>
@@ -220,9 +231,7 @@ export default function LaundryDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground">Order Date</p>
               <p className="font-medium">
-                {transaction.orderDate
-                  ? format(new Date(transaction.orderDate), "dd MMMM yyyy")
-                  : "N/A"}
+                {format(new Date(transaction.orderDate || transaction.createdAt), "dd MMMM yyyy")}
               </p>
             </div>
             {transaction.completedDate && (
@@ -290,6 +299,7 @@ export default function LaundryDetailPage() {
               >
                 <option value="">Select payment status</option>
                 <option value="UNPAID">Unpaid</option>
+                <option value="PARTIAL">Partial</option>
                 <option value="PAID">Paid</option>
               </select>
             </div>

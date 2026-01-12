@@ -35,6 +35,16 @@ export enum UserRole {
 }
 
 /**
+ * User Profile Details
+ */
+export interface UserProfile {
+  idCard: string | null;
+  address: string | null;
+  emergencyContact: string | null;
+  emergencyContactName: string | null;
+}
+
+/**
  * User Type
  */
 export interface User {
@@ -44,6 +54,7 @@ export interface User {
   email?: string;
   phoneNumber?: string;
   role: UserRole;
+  profile?: UserProfile | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -72,7 +83,6 @@ export enum RoomStatus {
 export interface Room {
   id: string;
   roomNumber: string;
-  floor?: number;
   rentalPrice: number;
   facilities: Record<string, unknown>;
   status: RoomStatus;
@@ -147,7 +157,17 @@ export interface Invoice {
   billingDate: string;
   dueDate: string;
   paidDate?: string;
-  resident: Resident;
+  // Updated to match new API response which returns simplified resident info
+  // Keeping Resident type in union for backward compatibility during transition if needed,
+  // but ideally should favor the new structure
+  resident: Resident | {
+    name: string;
+    roomNumber: string;
+    billingCycleDate: number;
+    // Allow for potential extra fields during transition
+    user?: any;
+    room?: any;
+  };
   utilityRecords: UtilityRecord[];
   createdAt: string;
   updatedAt: string;
@@ -170,6 +190,7 @@ export enum LaundryStatus {
 export enum LaundryPaymentStatus {
   UNPAID = 'UNPAID',
   PAID = 'PAID',
+  PARTIAL = 'PARTIAL',
 }
 
 /**
@@ -183,9 +204,15 @@ export interface LaundryTransaction {
   price: number;
   status: LaundryStatus;
   paymentStatus: LaundryPaymentStatus;
-  orderDate: string;
+  orderDate?: string;
   completedDate?: string;
-  resident: Resident;
+  revenueType?: string;
+  resident?: Resident | {
+    name: string;
+    roomNumber: string;
+    user?: any;
+    room?: any;
+  };
   createdAt: string;
   updatedAt: string;
 }

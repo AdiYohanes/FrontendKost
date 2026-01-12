@@ -31,8 +31,10 @@ import {
 import Link from "next/link";
 import { format, isPast, parseISO } from "date-fns";
 import { InvoiceStatus, Invoice } from "@/lib/api/types";
+import { GenerateInvoiceDialog } from "@/components/invoices/GenerateInvoiceDialog";
 
 export default function InvoicesPage() {
+  const [isGenerateOpen, setIsGenerateOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -210,15 +212,14 @@ export default function InvoicesPage() {
             Manage and track all billing invoices
           </p>
         </div>
-        <Link href="/invoices/generate" className="w-full md:w-auto">
-          <Button
+        <Button
             size="lg"
+            onClick={() => setIsGenerateOpen(true)}
             className="w-full md:w-auto h-12 md:h-14 rounded-full bg-[#1baa56] hover:bg-[#148041] text-white shadow-lg shadow-[#1baa56]/30 hover:shadow-[#1baa56]/50 hover:-translate-y-1 active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <Plus className="mr-2 h-5 w-5" />
             Generate Invoice
           </Button>
-        </Link>
       </div>
 
       {/* Statistics Cards */}
@@ -316,8 +317,7 @@ export default function InvoicesPage() {
       )}
 
       {/* Filters */}
-      <Card className="rounded-3xl border-gray-200 dark:border-slate-800 shadow-lg p-4 md:p-6">
-        <div className="flex flex-col gap-3 md:flex-row md:gap-4">
+      <div className="flex flex-col gap-3 md:flex-row md:gap-4 mt-6">
           <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-slate-400" />
             <Input
@@ -364,7 +364,6 @@ export default function InvoicesPage() {
             </Select>
           </div>
         </div>
-      </Card>
 
       {/* Invoices List */}
       {isLoading ? (
@@ -561,6 +560,11 @@ export default function InvoicesPage() {
           </div>
         </div>
       )}
+
+      <GenerateInvoiceDialog 
+        isOpen={isGenerateOpen} 
+        onOpenChange={setIsGenerateOpen} 
+      />
     </div>
   );
 }

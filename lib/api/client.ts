@@ -172,8 +172,12 @@ apiClient.interceptors.response.use(
           break;
         
         case 404:
-          // Not found
-          logger.error('Resource not found:', error.response.data);
+          // Not found - only log as error if there's actual error message data
+          if (error.response.data && Object.keys(error.response.data).length > 0) {
+            logger.error('Resource not found:', error.response.data);
+          } else {
+            logger.warn('Resource not found (empty response):', error.config?.url);
+          }
           break;
         
         case 500:

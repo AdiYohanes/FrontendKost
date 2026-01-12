@@ -107,19 +107,21 @@ export default function ComplaintsPage() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Complaints</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100">
+            Complaints
+          </h1>
+          <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mt-1">
             {user?.role === UserRole.PENGHUNI
-              ? "View and manage your complaints"
-              : "Manage resident complaints"}
+              ? "Your Support Tickets"
+              : "Resident Issues & Maintenance"}
           </p>
         </div>
         {canCreate && (
           <Link href="/complaints/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
+             <Button size="lg" className="h-12 md:h-14 rounded-2xl bg-[#1baa56] hover:bg-[#168a46] text-white shadow-xl shadow-[#1baa56]/20 hover:shadow-[#1baa56]/30 hover:-translate-y-1 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest px-8">
+              <Plus className="mr-2 h-5 w-5" />
               New Complaint
             </Button>
           </Link>
@@ -127,178 +129,103 @@ export default function ComplaintsPage() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>Search and filter complaints</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
-              <Input
-                placeholder="Search by title, description, or ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 w-full bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-zinc-400"
-              />
-            </div>
+      <div className="flex flex-col md:flex-row gap-4 mt-8">
+        {/* Search */}
+        <div className="flex-1 relative w-full">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
+          <Input
+            placeholder="Search complaints..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-12 w-full bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm transition-all focus:ring-2 focus:ring-[#1baa56]/20 focus:border-[#1baa56] placeholder:text-zinc-400 rounded-2xl"
+          />
+        </div>
 
-            {/* Status Filter */}
-            <div className="w-full md:w-[200px]">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full h-10 bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
-                  <SelectItem
-                    value="all"
-                    className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5"
-                  >
-                    All Status
-                  </SelectItem>
-                  <SelectItem
-                    value="OPEN"
-                    className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg py-2.5"
-                  >
-                    Open
-                  </SelectItem>
-                  <SelectItem
-                    value="IN_PROGRESS"
-                    className="text-yellow-600 focus:text-yellow-700 focus:bg-yellow-50 cursor-pointer rounded-lg py-2.5"
-                  >
-                    In Progress
-                  </SelectItem>
-                  <SelectItem
-                    value="RESOLVED"
-                    className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5"
-                  >
-                    Resolved
-                  </SelectItem>
-                  <SelectItem
-                    value="CLOSED"
-                    className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5"
-                  >
-                    Closed
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        {/* Status Filter */}
+        <div className="w-full md:w-[200px]">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full h-12 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm transition-all focus:ring-2 focus:ring-[#1baa56]/20 focus:border-[#1baa56] rounded-2xl text-xs font-bold uppercase tracking-wide">
+              <SelectValue placeholder="STATUS" />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-2xl p-1">
+              <SelectItem value="all" className="focus:bg-zinc-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">All Status</SelectItem>
+              <SelectItem value="OPEN" className="text-red-600 focus:bg-red-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">Open</SelectItem>
+              <SelectItem value="IN_PROGRESS" className="text-yellow-600 focus:bg-yellow-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">In Progress</SelectItem>
+              <SelectItem value="RESOLVED" className="text-green-600 focus:bg-green-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">Resolved</SelectItem>
+              <SelectItem value="CLOSED" className="text-zinc-600 focus:bg-zinc-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">Closed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Complaints List */}
+      <div className="mt-8">
+        {isLoading ? (
+          <div className="grid gap-4">
+             {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-24 w-full bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-3xl" />
+             ))}
           </div>
-        </CardContent>
-      </Card>
+        ) : filteredComplaints.length === 0 ? (
+          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-3xl p-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 mt-4">
+             <Wrench className="h-12 w-12 text-zinc-300 mx-auto mb-4" />
+             <h3 className="text-sm font-black uppercase tracking-widest text-zinc-400">
+               No complaints found
+             </h3>
+             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-300 mt-2 px-1">
+                {searchQuery || statusFilter !== "all"
+                  ? "Adjust filters to see more results"
+                  : "Submit a complaint if you need help"}
+             </p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {filteredComplaints.map((complaint, index) => {
+              const statusBadge = getStatusBadge(complaint.status);
 
-      {/* Complaints Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Complaints</CardTitle>
-          <CardDescription>
-            {filteredComplaints.length} complaint(s) found
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-2">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ) : filteredComplaints.length === 0 ? (
-            <EmptyState
-              icon={Wrench}
-              title="No complaints found"
-              description={
-                searchQuery || statusFilter !== "all"
-                  ? "Try adjusting your filters to see more results"
-                  : canCreate
-                    ? "Submit your first complaint to get started"
-                    : "No complaints have been submitted yet"
-              }
-              action={
-                canCreate
-                  ? {
-                      label: "Submit Complaint",
-                      onClick: () => router.push("/complaints/new"),
-                    }
-                  : undefined
-              }
-            />
-          ) : (
-            <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="font-semibold whitespace-nowrap">
-                      ID
-                    </TableHead>
-                    <TableHead className="font-semibold whitespace-nowrap">
-                      Title
-                    </TableHead>
-                    <TableHead className="font-semibold text-center whitespace-nowrap">
-                      Status
-                    </TableHead>
-                    <TableHead className="font-semibold text-right whitespace-nowrap">
-                      Created
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredComplaints.map((complaint, index) => {
-                    const statusBadge = getStatusBadge(complaint.status);
-
-                    return (
-                      <TableRow
-                        key={complaint.id}
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() =>
-                          router.push(`/complaints/${complaint.id}`)
-                        }
-                      >
-                        {/* ID */}
-                        <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+              return (
+                <div
+                  key={complaint.id}
+                  className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 hover:shadow-xl hover:shadow-zinc-200/50 dark:hover:shadow-black/50 transition-all duration-300 cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-6"
+                  onClick={() => router.push(`/complaints/${complaint.id}`)}
+                >
+                  <div className="flex items-center gap-5">
+                    <div className="h-14 w-14 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center shrink-0 shadow-sm group-hover:bg-[#1baa56]/10 group-hover:border-[#1baa56]/20 transition-colors">
+                      <Wrench className="h-7 w-7 text-zinc-400 group-hover:text-[#1baa56] transition-colors" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[#1baa56] bg-[#1baa56]/10 px-2 py-0.5 rounded-md">
                           #{String(index + 1).padStart(3, "0")}
-                        </TableCell>
+                        </span>
+                        <h3 className="font-black text-lg text-zinc-900 dark:text-zinc-100 truncate">
+                          {complaint.title}
+                        </h3>
+                      </div>
+                      <p className="text-xs font-bold text-zinc-400 truncate max-w-md">
+                        {complaint.description}
+                      </p>
+                    </div>
+                  </div>
 
-                        {/* Title */}
-                        <TableCell className="min-w-[200px]">
-                          <div className="flex flex-col">
-                            <span className="font-medium line-clamp-1">
-                              {complaint.title}
-                            </span>
-                            <span className="text-xs text-muted-foreground line-clamp-1">
-                              {complaint.description}
-                            </span>
-                          </div>
-                        </TableCell>
+                  <div className="flex flex-wrap items-center gap-4 sm:gap-8 ml-1 sm:ml-0">
+                    <div className="text-right sm:min-w-[120px]">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">Submitted</p>
+                      <p className="font-black text-sm text-zinc-900 dark:text-zinc-100">
+                        {complaint.createdAt ? format(new Date(complaint.createdAt), "dd MMM yyyy") : "N/A"}
+                      </p>
+                    </div>
 
-                        {/* Status */}
-                        <TableCell className="text-center">
-                          <Badge
-                            className={`${statusBadge.className} whitespace-nowrap`}
-                          >
-                            {statusBadge.label}
-                          </Badge>
-                        </TableCell>
-
-                        {/* Created Date */}
-                        <TableCell className="text-right text-sm text-muted-foreground whitespace-nowrap">
-                          {complaint.createdAt
-                            ? format(
-                                new Date(complaint.createdAt),
-                                "dd MMM yyyy"
-                              )
-                            : "N/A"}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                    <div className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border text-center min-w-[100px] ${statusBadge.className.split(' ').filter(c => !c.includes('bg')).join(' ')}`}>
+                       {statusBadge.label}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

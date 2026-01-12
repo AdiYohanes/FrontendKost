@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface CardSkeletonProps {
   showHeader?: boolean;
@@ -41,16 +42,16 @@ export function StatCardSkeleton({ count = 4 }: StatCardSkeletonProps) {
   return (
     <>
       {Array.from({ length: count }).map((_, i) => (
-        <Card key={i}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-4 rounded" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-8 w-20 mb-2" />
-            <Skeleton className="h-3 w-32" />
-          </CardContent>
-        </Card>
+        <div key={i} className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-4 w-4 rounded-full" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <Skeleton className="h-8 w-12" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
       ))}
     </>
   );
@@ -68,25 +69,37 @@ export function GridCardSkeleton({
   return (
     <>
       {Array.from({ length: count }).map((_, i) => (
-        <Card key={i} className={className}>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3 flex-1">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-4 w-24" />
-                </div>
-              </div>
-              <Skeleton className="h-6 w-16 rounded-full" />
+        <div 
+          key={i} 
+          className={cn(
+            "bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden p-4 space-y-3",
+            className
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-8 w-8 rounded-lg" />
+              <Skeleton className="h-4 w-24" />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-10 w-full rounded-lg mt-4" />
-          </CardContent>
-        </Card>
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+
+          <div className="flex items-end justify-between pt-1">
+            <div className="space-y-1">
+              <Skeleton className="h-2 w-16" />
+              <Skeleton className="h-5 w-24" />
+            </div>
+            <div className="space-y-1 text-right">
+              <Skeleton className="h-2 w-12" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2 border-t border-zinc-50 dark:border-zinc-900">
+            <Skeleton className="h-8 flex-1 rounded-md" />
+            <Skeleton className="h-8 flex-1 rounded-md" />
+          </div>
+        </div>
       ))}
     </>
   );
@@ -98,23 +111,29 @@ interface ListCardSkeletonProps {
 
 export function ListCardSkeleton({ count = 5 }: ListCardSkeletonProps) {
   return (
-    <Card>
-      <div className="divide-y">
+    <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-950 overflow-hidden">
+      <div className="divide-y divide-zinc-100 dark:divide-zinc-900">
         {Array.from({ length: count }).map((_, i) => (
-          <div key={i} className="p-4">
+          <div key={i} className="p-3">
             <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4 flex-1">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-48" />
-                  <Skeleton className="h-4 w-64" />
+              <div className="flex items-center gap-3 flex-1">
+                <Skeleton className="h-10 w-10 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-1.5 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-3 w-48" />
                 </div>
               </div>
-              <Skeleton className="h-8 w-8 rounded" />
+              <div className="flex gap-1">
+                <Skeleton className="h-8 w-8 rounded" />
+                <Skeleton className="h-8 w-8 rounded" />
+              </div>
             </div>
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }

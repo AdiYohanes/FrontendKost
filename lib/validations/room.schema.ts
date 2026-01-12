@@ -10,11 +10,6 @@ export const roomSchema = z.object({
     .string()
     .min(1, 'Room number is required')
     .max(10, 'Room number must be at most 10 characters'),
-  floor: z
-    .number()
-    .int('Floor must be an integer')
-    .min(0, 'Floor must be at least 0')
-    .optional(),
   rentalPrice: z
     .number()
     .min(0, 'Rental price must be at least 0')
@@ -33,7 +28,6 @@ export const roomFilterSchema = z.object({
   status: z.nativeEnum(RoomStatus).optional(),
   minPrice: z.number().min(0).optional(),
   maxPrice: z.number().min(0).optional(),
-  floor: z.number().int().optional(),
   search: z.string().optional(),
 });
 

@@ -13,9 +13,10 @@ import {
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useRoom } from "@/lib/hooks/useRooms";
 import { useResident } from "@/lib/hooks/useResidents";
+import { profileApi } from "@/lib/api/services/profile";
 import { GlobalSearch } from "./GlobalSearch";
 import { useKeyboardShortcuts } from "@/lib/hooks/useKeyboardShortcuts";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -93,8 +94,37 @@ function generateBreadcrumbs(
 export function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, setUser } = useAuthStore();
   const searchRef = useRef<any>(null);
+  const [processedUserId, setProcessedUserId] = useState<string | null>(null);
+
+  // Fetch full user profile if name is missing (incomplete login response)
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      // Logic: Only fetch if we have an ID, no name, and haven't tried this ID yet
+      if (user?.id && !user.name && processedUserId !== user.id) {
+        try {
+          // Mark as processed immediately to prevent loops
+          setProcessedUserId(user.id);
+          
+          console.log('[Header] Fetching full profile for User ID:', user.id);
+          
+          // Use profileApi instead of usersApi for better security/context
+          const fullUser = await profileApi.getProfile();
+          console.log('[Header] Fetched user:', fullUser);
+          
+          // Only update if we got more data
+          if (fullUser.name || fullUser.email) {
+            setUser(fullUser);
+          }
+        } catch (error) {
+          console.error("[Header] Failed to fetch user profile:", error);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user, processedUserId, setUser]);
 
   // Keyboard shortcut: Ctrl+K to focus search
   useKeyboardShortcuts([
@@ -192,15 +222,17 @@ export function Header({ onMenuClick }: HeaderProps) {
                     {user?.name || user?.username || "User"}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {user?.role === "OWNER" && "Owner"}
-                    {user?.role === "PENJAGA" && "Staff"}
-                    {user?.role === "PENGHUNI" && "Tenant"}
+                    {user?.email || (
+                      <>
+                        {user?.role === "OWNER" && "Owner"}
+                        {user?.role === "PENJAGA" && "Staff"}
+                        {user?.role === "PENGHUNI" && "Tenant"}
+                      </>
+                    )}
                   </p>
                 </div>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1baa56] text-white text-sm font-bold ring-2 ring-gray-100 hover:ring-gray-200 transition-all">
-                  {user?.name?.charAt(0).toUpperCase() ||
-                    user?.username?.charAt(0).toUpperCase() ||
-                    "U"}
+                  {user?.name?.charAt(0).toUpperCase() || "U"}
                 </div>
               </div>
             </Button>
@@ -213,9 +245,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <div className="px-3 py-3 bg-gray-50 rounded-t-lg">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1baa56] text-white text-base font-bold">
-                  {user?.name?.charAt(0).toUpperCase() ||
-                    user?.username?.charAt(0).toUpperCase() ||
-                    "U"}
+                  {user?.name?.charAt(0).toUpperCase() || "U"}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate">

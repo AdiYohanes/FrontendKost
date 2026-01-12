@@ -12,7 +12,9 @@ import { queryKeys } from "@/lib/query/queryKeys";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import {
+  Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -41,6 +43,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AddRoomDialog } from "@/components/rooms/AddRoomDialog";
+import { RoomDetailDialog } from "@/components/rooms/RoomDetailDialog";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -50,31 +54,19 @@ export default function RoomsPage() {
   const router = useRouter();
   const { createPrefetchHandlers } = usePrefetch();
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [placeholderText, setPlaceholderText] = useState(
-    "Search by room number or floor..."
-  );
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 640) {
-        setPlaceholderText("Search rooms...");
-      } else {
-        setPlaceholderText("Search by room number or floor...");
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // Calculate statistics
   const stats = useMemo(() => {
-    if (!rooms) return { total: 0, available: 0, occupied: 0, maintenance: 0 };
+    if (!rooms || !isMounted) return { total: 0, available: 0, occupied: 0, maintenance: 0 };
 
     return {
       total: rooms.length,
@@ -91,8 +83,7 @@ export default function RoomsPage() {
 
     return rooms.filter((room) => {
       const matchesSearch =
-        room.roomNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        room.floor?.toString().includes(searchQuery);
+        room.roomNumber.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesStatus =
         statusFilter === "all" || room.status === statusFilter;
@@ -125,6 +116,18 @@ export default function RoomsPage() {
     setCurrentPage(1);
   };
 
+  // Dialog state
+  const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
+
+  // Detail state
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const handleViewDetails = (roomId: string) => {
+    setSelectedRoomId(roomId);
+    setIsDetailOpen(true);
+  };
+
   if (error) {
     return (
       <div className="p-6">
@@ -139,6 +142,13 @@ export default function RoomsPage() {
 
   return (
     <div className="p-6 space-y-6">
+      <AddRoomDialog open={isAddRoomOpen} onOpenChange={setIsAddRoomOpen} />
+      <RoomDetailDialog 
+        roomId={selectedRoomId} 
+        open={isDetailOpen} 
+        onOpenChange={setIsDetailOpen} 
+      />
+      
       {/* Header */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
@@ -147,76 +157,62 @@ export default function RoomsPage() {
             Manage and monitor all boarding house rooms
           </p>
         </div>
-        <Link href="/rooms/new">
-          <Button size="lg" className="w-full md:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Room
-          </Button>
-        </Link>
+        <Button size="lg" className="w-full md:w-auto" onClick={() => setIsAddRoomOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add New Room
+        </Button>
       </div>
 
       {/* Statistics Cards */}
-      {isLoading ? (
+      {(isLoading || !isMounted) ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCardSkeleton count={4} />
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Rooms</CardTitle>
-              <Home className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">
-                All rooms in the system
-              </p>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Rooms</p>
+              <Home className="h-4 w-4 text-zinc-400" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{stats.total}</h3>
+              <span className="text-[10px] text-zinc-400 font-medium whitespace-nowrap">Units total</span>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Available</CardTitle>
-              <DoorOpen className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {stats.available}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Ready for new tenants
-              </p>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Available</p>
+              <DoorOpen className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">{stats.available}</h3>
+              <span className="text-[10px] text-emerald-600/60 font-medium whitespace-nowrap">Ready to rent</span>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Occupied</CardTitle>
-              <Home className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                {stats.occupied}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Currently rented out
-              </p>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Occupied</p>
+              <Home className="h-4 w-4 text-blue-500" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-500">{stats.occupied}</h3>
+              <span className="text-[10px] text-blue-600/60 font-medium whitespace-nowrap">Active residents</span>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Maintenance</CardTitle>
-              <Wrench className="h-4 w-4 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">
-                {stats.maintenance}
-              </div>
-              <p className="text-xs text-muted-foreground">Under maintenance</p>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Maintenance</p>
+              <Wrench className="h-4 w-4 text-amber-500" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-2xl font-bold text-amber-600 dark:text-amber-500">{stats.maintenance}</h3>
+              <span className="text-[10px] text-amber-600/60 font-medium whitespace-nowrap">Needs attention</span>
+            </div>
+          </div>
         </div>
       )}
 
@@ -228,7 +224,7 @@ export default function RoomsPage() {
         <div className="flex-1 relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
           <Input
-            placeholder={placeholderText}
+            placeholder="Search rooms..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10 h-10 w-full bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-zinc-400"
@@ -267,16 +263,28 @@ export default function RoomsPage() {
         </Select>
         <div className="flex gap-2">
           <Button
-            variant={viewMode === "grid" ? "default" : "outline"}
+            variant="outline"
             size="icon"
             onClick={() => setViewMode("grid")}
+            className={cn(
+              "h-10 w-10 transition-all duration-300",
+              viewMode === "grid" 
+                ? "border-[#1baa56] bg-[#1baa56]/10 text-[#1baa56] hover:bg-[#1baa56]/20 hover:text-[#1baa56]" 
+                : "border-zinc-200 text-zinc-400 hover:text-zinc-600 dark:border-zinc-800"
+            )}
           >
             <LayoutGrid className="h-4 w-4" />
           </Button>
           <Button
-            variant={viewMode === "list" ? "default" : "outline"}
+            variant="outline"
             size="icon"
             onClick={() => setViewMode("list")}
+            className={cn(
+              "h-10 w-10 transition-all duration-300",
+              viewMode === "list" 
+                ? "border-[#1baa56] bg-[#1baa56]/10 text-[#1baa56] hover:bg-[#1baa56]/20 hover:text-[#1baa56]" 
+                : "border-zinc-200 text-zinc-400 hover:text-zinc-600 dark:border-zinc-800"
+            )}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -284,7 +292,7 @@ export default function RoomsPage() {
       </FilterPanel>
 
       {/* Rooms Display */}
-      {isLoading ? (
+      {(isLoading || !isMounted) ? (
         <>
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -312,126 +320,114 @@ export default function RoomsPage() {
                 }
               : {
                   label: "Add New Room",
-                  onClick: () => router.push("/rooms/new"),
+                  onClick: () => setIsAddRoomOpen(true),
                 }
           }
         />
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {paginatedRooms.map((room) => (
-            <Card
+            <div
               key={room.id}
-              className="hover:shadow-lg transition-shadow cursor-pointer"
+              className="group relative bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden hover:shadow-xl hover:border-[#1baa56]/30 transition-all duration-300"
             >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-xl">
-                      Room {room.roomNumber}
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Floor {room.floor ?? "N/A"}
-                    </p>
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-[#1baa56]/10 flex items-center justify-center text-[#1baa56]">
+                      <Home className="h-4 w-4" />
+                    </div>
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100">Room {room.roomNumber}</span>
                   </div>
-                  <Badge className={getRoomStatusColor(room.status)}>
-                    {room.status}
+                  <Badge variant="outline" className={cn("capitalize px-2 py-0 h-5 text-[10px] font-semibold border-none rounded-full", getRoomStatusColor(room.status))}>
+                    {room.status.toLowerCase()}
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Rental Price</span>
-                    <span className="font-semibold">
-                      {formatCurrency(room.rentalPrice)}
-                    </span>
+
+                <div className="flex items-end justify-between pt-1">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Monthly Rent</p>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{formatCurrency(room.rentalPrice)}</p>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Facilities</span>
-                    <span>
-                      {Object.keys(room.facilities || {}).length > 0
-                        ? `${Object.keys(room.facilities).length} items`
-                        : "None"}
-                    </span>
+                  <div className="text-right">
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Facilities</p>
+                    <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                      {Object.keys(room.facilities || {}).length} Items
+                    </p>
                   </div>
                 </div>
-                <div className="flex gap-2 pt-2">
-                  <Link
-                    href={`/rooms/${room.id}`}
-                    className="flex-1"
-                    {...createPrefetchHandlers(
-                      queryKeys.rooms.detail(room.id),
-                      () => roomsApi.getById(room.id)
-                    )}
+
+                <div className="flex gap-2 pt-2 border-t border-zinc-50 dark:border-zinc-900">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex-1 text-xs h-8 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 font-medium"
+                    onClick={() => handleViewDetails(room.id)}
                   >
-                    <Button variant="outline" size="sm" className="w-full">
-                      <Eye className="mr-2 h-4 w-4" />
-                      View
-                    </Button>
-                  </Link>
+                    <Eye className="mr-1.5 h-3.5 w-3.5" />
+                    View
+                  </Button>
                   <Link href={`/rooms/${room.id}/edit`} className="flex-1">
-                    <Button size="sm" className="w-full">
-                      <Edit className="mr-2 h-4 w-4" />
+                    <Button size="sm" className="w-full text-xs h-8 bg-[#1baa56]/10 text-[#1baa56] hover:bg-[#1baa56] hover:text-white transition-all border-none font-semibold">
+                      <Edit className="mr-1.5 h-3.5 w-3.5" />
                       Edit
                     </Button>
                   </Link>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <Card>
-          <div className="divide-y">
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-950 overflow-hidden shadow-sm">
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-900">
             {paginatedRooms.map((room) => (
               <div
                 key={room.id}
-                className="p-4 hover:bg-muted/50 transition-colors"
+                className="group p-3 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 transition-colors flex items-center justify-between gap-4"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Home className="h-6 w-6 text-primary" />
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="h-10 w-10 shrink-0 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 group-hover:bg-[#1baa56]/10 group-hover:text-[#1baa56] transition-colors">
+                    <Home className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-zinc-900 dark:text-zinc-100 truncate">
+                        Room {room.roomNumber}
+                      </h3>
+                      <Badge variant="outline" className={cn("px-2 py-0 h-4 text-[9px] font-bold border-none rounded-full", getRoomStatusColor(room.status))}>
+                        {room.status.toLowerCase()}
+                      </Badge>
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">
-                          Room {room.roomNumber}
-                        </h3>
-                        <Badge className={getRoomStatusColor(room.status)}>
-                          {room.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                        <span>Floor {room.floor ?? "N/A"}</span>
-                        <span>•</span>
-                        <span className="font-medium text-foreground">
-                          {formatCurrency(room.rentalPrice)}
-                        </span>
-                        <span>•</span>
-                        <span>
-                          {Object.keys(room.facilities || {}).length} facilities
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-3 mt-0.5 text-[11px] text-zinc-500 font-medium">
+                      <span className="text-zinc-900 dark:text-zinc-300">
+                        {formatCurrency(room.rentalPrice)}
+                      </span>
+                      <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                      <span>{Object.keys(room.facilities || {}).length} facilities</span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Link href={`/rooms/${room.id}`}>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                    <Link href={`/rooms/${room.id}/edit`}>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </div>
+                </div>
+                
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                    onClick={() => handleViewDetails(room.id)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Link href={`/rooms/${room.id}/edit`}>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-zinc-400 hover:text-[#1baa56]">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Pagination */}

@@ -272,30 +272,7 @@ export function LaundryStatusTimeline({
           )}
         </div>
 
-        {/* Cancel Option */}
-        {!isCancelled && currentStatus !== LaundryStatus.COMPLETED && (
-          <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusUpdate(LaundryStatus.CANCELLED)}
-              disabled={isLoading && selectedNextStatus === LaundryStatus.CANCELLED}
-              className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20"
-            >
-              {isLoading && selectedNextStatus === LaundryStatus.CANCELLED ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Cancelling...
-                </>
-              ) : (
-                <>
-                  <XCircle className="mr-2 h-4 w-4" />
-                  Cancel Order
-                </>
-              )}
-            </Button>
-          </div>
-        )}
+
 
         {/* Completion Message */}
         {currentStatus === LaundryStatus.COMPLETED && (

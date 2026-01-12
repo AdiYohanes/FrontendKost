@@ -8,7 +8,6 @@ import { Room, RoomStatus } from '../types';
 
 export interface CreateRoomDto {
   roomNumber: string;
-  floor?: number;
   rentalPrice: number;
   facilities?: Record<string, unknown>;
   status: RoomStatus;
@@ -16,7 +15,6 @@ export interface CreateRoomDto {
 
 export interface UpdateRoomDto {
   roomNumber?: string;
-  floor?: number;
   rentalPrice?: number;
   facilities?: Record<string, unknown>;
   status?: RoomStatus;

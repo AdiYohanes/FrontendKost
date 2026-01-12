@@ -37,8 +37,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { ResidentDetailDialog } from "@/components/residents/ResidentDetailDialog";
+import { OnboardResidentDialog } from "@/components/residents/OnboardResidentDialog";
 
 export default function ResidentsPage() {
+  const [isMounted, setIsMounted] = useState(false);
+  const [selectedResidentId, setSelectedResidentId] = useState<string | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isOnboardOpen, setIsOnboardOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -130,20 +142,36 @@ export default function ResidentsPage() {
     setCurrentPage(1);
   };
 
+  const handleViewDetails = (id: string) => {
+    setSelectedResidentId(id);
+    setIsDetailOpen(true);
+  };
+
   if (error) {
     return (
       <div className="p-6">
-        <Card className="p-6">
-          <p className="text-destructive">
+        <div className="p-6 bg-white dark:bg-zinc-950 border border-red-100 dark:border-red-900/30 rounded-xl">
+          <p className="text-red-600 font-medium">
             Error loading residents: {error.message}
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="p-6 space-y-6">
+      <ResidentDetailDialog 
+        residentId={selectedResidentId}
+        isOpen={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+      />
+
+      <OnboardResidentDialog 
+        isOpen={isOnboardOpen}
+        onOpenChange={setIsOnboardOpen}
+      />
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
@@ -152,128 +180,117 @@ export default function ResidentsPage() {
             Manage and monitor all boarding house residents
           </p>
         </div>
-        <Link href="/residents/new">
-          <Button size="lg" className="w-full md:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Onboard Resident
-          </Button>
-        </Link>
+        <Button 
+          size="lg" 
+          className="w-full md:w-auto bg-[#1baa56] hover:bg-[#168a46] text-white font-bold rounded-xl shadow-lg shadow-[#1baa56]/10"
+          onClick={() => setIsOnboardOpen(true)}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Onboard Resident
+        </Button>
       </div>
 
       {/* Statistics Cards */}
-      {isLoading ? (
+      {(isLoading || !isMounted) ? (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           <StatCardSkeleton count={3} />
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Residents
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">
-                All residents in the system
-              </p>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Residents</p>
+              <Users className="h-4 w-4 text-zinc-400" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{stats.total}</h3>
+              <span className="text-[10px] text-zinc-400 font-medium whitespace-nowrap">People total</span>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Active Residents
-              </CardTitle>
-              <UserCheck className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {stats.active}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Currently living here
-              </p>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Active</p>
+              <UserCheck className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">{stats.active}</h3>
+              <span className="text-[10px] text-emerald-600/60 font-medium whitespace-nowrap">Current stay</span>
+            </div>
+          </div>
 
-          <Card className="col-span-2 lg:col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Inactive Residents
-              </CardTitle>
-              <UserX className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-600">
-                {stats.inactive}
-              </div>
-              <p className="text-xs text-muted-foreground">Moved out</p>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Inactive</p>
+              <UserX className="h-4 w-4 text-zinc-400" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-2xl font-bold text-zinc-500 dark:text-zinc-400">{stats.inactive}</h3>
+              <span className="text-[10px] text-zinc-400 font-medium whitespace-nowrap">Moved out</span>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Filters and View Toggle */}
-      <Card className="p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            <Input
-              placeholder={placeholderText}
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 h-10 w-full bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-zinc-400"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-            <SelectTrigger className="w-full md:w-[200px] h-10 bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
-              <SelectItem
-                value="all"
-                className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5"
-              >
-                All Residents
-              </SelectItem>
-              <SelectItem
-                value="active"
-                className="text-green-600 focus:text-green-700 focus:bg-green-50 cursor-pointer rounded-lg py-2.5"
-              >
-                Active
-              </SelectItem>
-              <SelectItem
-                value="inactive"
-                className="text-gray-600 focus:text-gray-700 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5"
-              >
-                Inactive
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="flex gap-2">
-            <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
-              size="icon"
-              onClick={() => setViewMode("grid")}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "outline"}
-              size="icon"
-              onClick={() => setViewMode("list")}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex-1 relative w-full">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
+          <Input
+            placeholder={placeholderText}
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="pl-10 h-10 w-full bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-[#1baa56]/20 focus:border-[#1baa56] placeholder:text-zinc-400 rounded-xl"
+          />
         </div>
-      </Card>
+        <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+          <SelectTrigger className="w-full md:w-[200px] h-10 bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-[#1baa56]/20 focus:border-[#1baa56] rounded-xl">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
+            <SelectItem value="all" className="focus:bg-zinc-50 cursor-pointer rounded-lg py-2.5">
+              All Residents
+            </SelectItem>
+            <SelectItem value="active" className="text-green-600 focus:bg-green-50 cursor-pointer rounded-lg py-2.5">
+              Active
+            </SelectItem>
+            <SelectItem value="inactive" className="text-gray-600 focus:bg-gray-50 cursor-pointer rounded-lg py-2.5">
+              Inactive
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setViewMode("grid")}
+            className={cn(
+              "h-10 w-10 transition-all duration-300 rounded-xl",
+              viewMode === "grid" 
+                ? "border-[#1baa56] bg-[#1baa56]/10 text-[#1baa56]" 
+                : "border-zinc-200 text-zinc-400"
+            )}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setViewMode("list")}
+            className={cn(
+              "h-10 w-10 transition-all duration-300 rounded-xl",
+              viewMode === "list" 
+                ? "border-[#1baa56] bg-[#1baa56]/10 text-[#1baa56]" 
+                : "border-zinc-200 text-zinc-400"
+            )}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
       {/* Residents Display */}
-      {isLoading ? (
+      {(isLoading || !isMounted) ? (
         <>
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -311,143 +328,113 @@ export default function ResidentsPage() {
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {paginatedResidents.map((resident) => (
-            <Card
+            <div
               key={resident.id}
-              className="hover:shadow-lg transition-shadow"
+              className="group relative bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden hover:shadow-xl hover:border-[#1baa56]/30 transition-all duration-300"
             >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Users className="h-6 w-6 text-primary" />
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-[#1baa56]/10 flex items-center justify-center text-[#1baa56]">
+                      <Users className="h-4 w-4" />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">
-                        {resident.user?.name || "N/A"}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        @{resident.user?.username || "N/A"}
-                      </p>
-                    </div>
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100">{resident.user?.name || "N/A"}</span>
                   </div>
-                  <Badge
-                    className={
-                      resident.isActive
-                        ? "bg-green-500 hover:bg-green-600"
-                        : "bg-gray-500 hover:bg-gray-600"
-                    }
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "capitalize px-2 py-0 h-5 text-[10px] font-semibold border-none rounded-full",
+                      resident.isActive 
+                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" 
+                        : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                    )}
                   >
                     {resident.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Home className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">Room:</span>
-                    <span className="font-medium">
-                      {resident.room?.roomNumber || "N/A"}
-                    </span>
+
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div className="bg-zinc-50 dark:bg-zinc-900/50 p-2 rounded-lg border border-zinc-100 dark:border-zinc-800">
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Room</p>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">#{resident.room?.roomNumber || "N/A"}</p>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">Entry:</span>
-                    <span className="font-medium">
-                      {resident.entryDate
-                        ? format(new Date(resident.entryDate), "MMM dd, yyyy")
-                        : "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">Billing:</span>
-                    <span className="font-medium">
-                      Day {resident.billingCycleDate}
-                    </span>
+                  <div className="bg-zinc-50 dark:bg-zinc-900/50 p-2 rounded-lg border border-zinc-100 dark:border-zinc-800">
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Entry Date</p>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                      {resident.entryDate ? format(new Date(resident.entryDate), "dd MMM yy") : "N/A"}
+                    </p>
                   </div>
                 </div>
-                <Link
-                  href={`/residents/${resident.id}`}
-                  className="block pt-2"
-                  {...createPrefetchHandlers(
-                    queryKeys.residents.detail(resident.id),
-                    () => residentsApi.getById(resident.id)
-                  )}
-                >
-                  <Button variant="outline" size="sm" className="w-full">
-                    <Eye className="mr-2 h-4 w-4" />
-                    View Details
+
+                <div className="flex gap-2 pt-2 border-t border-zinc-50 dark:border-zinc-900">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex-1 text-xs h-9 text-zinc-600 dark:text-zinc-400 hover:bg-[#1baa56]/10 hover:text-[#1baa56] font-bold rounded-xl transition-all"
+                    onClick={() => handleViewDetails(resident.id)}
+                  >
+                    <Eye className="mr-1.5 h-4 w-4" />
+                    Resident Profile
                   </Button>
-                </Link>
-              </CardContent>
-            </Card>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <Card>
-          <div className="divide-y">
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-950 overflow-hidden shadow-sm">
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-900">
             {paginatedResidents.map((resident) => (
               <div
                 key={resident.id}
-                className="p-4 hover:bg-muted/50 transition-colors"
+                className="group p-3 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 transition-colors flex items-center justify-between gap-4"
               >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Users className="h-6 w-6 text-primary" />
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="h-10 w-10 shrink-0 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 group-hover:bg-[#1baa56]/10 group-hover:text-[#1baa56] transition-colors">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-zinc-900 dark:text-zinc-100 truncate">
+                        {resident.user?.name || "N/A"}
+                      </h3>
+                      <Badge 
+                        variant="outline" 
+                        className={cn(
+                          "px-2 py-0 h-4 text-[9px] font-bold border-none rounded-full",
+                          resident.isActive 
+                            ? "bg-emerald-100 text-emerald-700" 
+                            : "bg-zinc-100 text-zinc-600"
+                        )}
+                      >
+                        {resident.isActive ? "Active" : "Inactive"}
+                      </Badge>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold truncate">
-                          {resident.user?.name || "N/A"}
-                        </h3>
-                        <Badge
-                          className={
-                            resident.isActive
-                              ? "bg-green-500 hover:bg-green-600"
-                              : "bg-gray-500 hover:bg-gray-600"
-                          }
-                        >
-                          {resident.isActive ? "Active" : "Inactive"}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Home className="h-3 w-3" />
-                          Room {resident.room?.roomNumber || "N/A"}
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {resident.entryDate
-                            ? format(
-                                new Date(resident.entryDate),
-                                "MMM dd, yyyy"
-                              )
-                            : "N/A"}
-                        </span>
-                        <span>•</span>
-                        <span>Billing: Day {resident.billingCycleDate}</span>
-                      </div>
+                    <div className="flex items-center gap-3 mt-0.5 text-[11px] text-zinc-500 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Home className="h-3 w-3" />
+                        Room {resident.room?.roomNumber || "N/A"}
+                      </span>
+                      <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                      <span>Entry: {resident.entryDate ? format(new Date(resident.entryDate), "dd MMM yyyy") : "N/A"}</span>
                     </div>
                   </div>
-                  <Link
-                    href={`/residents/${resident.id}`}
-                    {...createPrefetchHandlers(
-                      queryKeys.residents.detail(resident.id),
-                      () => residentsApi.getById(resident.id)
-                    )}
+                </div>
+                
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-9 px-3 text-[11px] font-bold uppercase tracking-wider text-[#1baa56] hover:bg-[#1baa56]/10 rounded-xl"
+                    onClick={() => handleViewDetails(resident.id)}
                   >
-                    <Button variant="ghost" size="sm" className="flex-shrink-0">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </Link>
+                    View Profile
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Pagination */}

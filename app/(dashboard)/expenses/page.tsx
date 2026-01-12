@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useExpenses } from "@/lib/hooks/useExpenses";
-import { ExpenseCategory } from "@/lib/api/types";
+import { ExpenseCategory, Expense } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useQueryParams } from "@/lib/hooks/useQueryParams";
 import { ITEMS_PER_PAGE } from "@/lib/constants/pagination";
@@ -72,6 +73,7 @@ const formatCurrency = (amount: number) => {
 };
 
 export default function ExpensesPage() {
+  const router = useRouter();
   const user = useAuthStore((state) => state.user);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -239,18 +241,19 @@ export default function ExpensesPage() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Expense Management</h1>
-          <p className="text-muted-foreground">
-            Track and manage operational expenses
+          <h1 className="text-3xl font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100">
+            Expenses
+          </h1>
+          <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mt-1">
+            Operational Cost Management
           </p>
         </div>
         <Link href="/expenses/new">
-          <Button size="lg" className="w-full md:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Expense
+          <Button size="lg" className="h-12 md:h-14 rounded-2xl bg-[#1baa56] hover:bg-[#168a46] text-white shadow-xl shadow-[#1baa56]/20 hover:shadow-[#1baa56]/30 hover:-translate-y-1 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest px-8">
+            <Plus className="mr-2 h-5 w-5" />
+            Add Expense
           </Button>
         </Link>
       </div>
@@ -261,269 +264,203 @@ export default function ExpensesPage() {
           <StatCardSkeleton count={4} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Expenses
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatCurrency(stats.total)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {expenses?.length || 0} expense records
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">This Month</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatCurrency(stats.currentMonthTotal)}
-              </div>
-              <div className="flex items-center gap-1 text-xs">
-                {stats.monthlyTrend > 0 ? (
-                  <>
-                    <span className="text-red-600">
-                      ↑ {stats.monthlyTrend.toFixed(1)}%
-                    </span>
-                    <span className="text-muted-foreground">vs last month</span>
-                  </>
-                ) : stats.monthlyTrend < 0 ? (
-                  <>
-                    <span className="text-green-600">
-                      ↓ {Math.abs(stats.monthlyTrend).toFixed(1)}%
-                    </span>
-                    <span className="text-muted-foreground">vs last month</span>
-                  </>
-                ) : (
-                  <span className="text-muted-foreground">
-                    No change from last month
-                  </span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {Object.entries(stats.byCategory)
-            .slice(0, 2)
-            .map(([category, amount]) => {
-              const Icon = categoryIcons[category as ExpenseCategory];
-              return (
-                <Card key={category}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      {category}
-                    </CardTitle>
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatCurrency(amount)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {expenses?.filter((e) => e.category === category)
-                        .length || 0}{" "}
-                      records
-                    </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 shadow-sm">
+           <div className="flex items-center justify-between mb-4">
+             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Total Expenses</span>
+             <DollarSign className="h-4 w-4 text-[#1baa56]" />
+           </div>
+           <div className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
+              {formatCurrency(stats.total)}
+           </div>
+           <p className="text-[10px] font-black uppercase tracking-widest text-[#1baa56] mt-2">
+              {expenses?.length || 0} Records
+           </p>
         </div>
+
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 shadow-sm">
+           <div className="flex items-center justify-between mb-4">
+             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">This Month</span>
+             <Calendar className="h-4 w-4 text-[#1baa56]" />
+           </div>
+           <div className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
+              {formatCurrency(stats.currentMonthTotal)}
+           </div>
+           <div className="flex items-center gap-1 mt-2">
+              {stats.monthlyTrend > 0 ? (
+                <span className="text-[10px] font-black uppercase tracking-widest text-red-600">
+                  ↑ {stats.monthlyTrend.toFixed(1)}% vs last
+                </span>
+              ) : stats.monthlyTrend < 0 ? (
+                <span className="text-[10px] font-black uppercase tracking-widest text-green-600">
+                  ↓ {Math.abs(stats.monthlyTrend).toFixed(1)}% vs last
+                </span>
+              ) : (
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                  No Change
+                </span>
+              )}
+           </div>
+        </div>
+
+        {Object.entries(stats.byCategory)
+          .slice(0, 2)
+          .map(([category, amount]) => {
+            const Icon = categoryIcons[category as ExpenseCategory];
+            return (
+              <div key={category} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 shadow-sm">
+                 <div className="flex items-center justify-between mb-4">
+                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 truncate pr-2">{category}</span>
+                   <Icon className="h-4 w-4 text-zinc-400" />
+                 </div>
+                 <div className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
+                    {formatCurrency(amount)}
+                 </div>
+                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mt-2">
+                    {expenses?.filter((e) => e.category === category).length || 0} records
+                 </p>
+              </div>
+            );
+          })}
+      </div>
       )}
 
       {/* Category Breakdown */}
       {Object.keys(stats.byCategory).length > 0 && (
-        <Card className="p-4">
-          <h3 className="font-semibold mb-4">Expense Breakdown by Category</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl p-8">
+          <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6">Expense Breakdown</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {Object.entries(stats.byCategory).map(([category, amount]) => {
               const Icon = categoryIcons[category as ExpenseCategory];
               const percentage = ((amount / stats.total) * 100).toFixed(1);
               return (
-                <div key={category} className="space-y-2">
+                <div key={category} className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">{category}</span>
+                    <div className="h-8 w-8 rounded-xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm">
+                       <Icon className="h-4 w-4 text-zinc-400" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 truncate">{category}</span>
                   </div>
-                  <div className="text-lg font-bold">
+                  <div className="text-lg font-black text-zinc-900 dark:text-zinc-100">
                     {formatCurrency(amount)}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {percentage}% of total
+                  <div className="text-[10px] font-black uppercase tracking-widest text-[#1baa56]">
+                    {percentage}%
                   </div>
                 </div>
               );
             })}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Filters */}
-      <FilterPanel
-        onClearAll={handleClearAllFilters}
-        showClearButton={
-          !!(searchQuery || categoryFilter !== "all" || startDate || endDate)
-        }
-      >
+      <div className="flex flex-col md:flex-row gap-4 mt-8">
         <div className="flex-1 relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
           <Input
-            placeholder="Search by description or category..."
+            placeholder="Search expenses..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-10 h-10 w-full bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-zinc-400"
+            className="pl-10 h-12 w-full bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm transition-all focus:ring-2 focus:ring-[#1baa56]/20 focus:border-[#1baa56] placeholder:text-zinc-400 rounded-2xl"
           />
         </div>
-        <div className="w-full md:w-[200px]">
-          <Select
-            value={categoryFilter}
-            onValueChange={handleCategoryFilterChange}
-          >
-            <SelectTrigger className="w-full h-10 bg-white border-zinc-200 shadow-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary">
-              <SelectValue placeholder="Filter by category" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-xl p-1">
-              <SelectItem
-                value="all"
-                className="focus:bg-zinc-50 focus:text-zinc-900 cursor-pointer rounded-lg py-2.5"
-              >
-                All Categories
-              </SelectItem>
-              <SelectItem
-                value={ExpenseCategory.MAINTENANCE}
-                className="focus:bg-orange-50 focus:text-orange-700 cursor-pointer rounded-lg py-2.5"
-              >
-                Maintenance
-              </SelectItem>
-              <SelectItem
-                value={ExpenseCategory.UTILITIES}
-                className="focus:bg-blue-50 focus:text-blue-700 cursor-pointer rounded-lg py-2.5"
-              >
-                Utilities
-              </SelectItem>
-              <SelectItem
-                value={ExpenseCategory.TRASH_FEE}
-                className="focus:bg-green-50 focus:text-green-700 cursor-pointer rounded-lg py-2.5"
-              >
-                Trash Fee
-              </SelectItem>
-              <SelectItem
-                value={ExpenseCategory.SUPPLIES}
-                className="focus:bg-purple-50 focus:text-purple-700 cursor-pointer rounded-lg py-2.5"
-              >
-                Supplies
-              </SelectItem>
-              <SelectItem
-                value={ExpenseCategory.OTHER}
-                className="focus:bg-gray-50 focus:text-gray-700 cursor-pointer rounded-lg py-2.5"
-              >
-                Other
-              </SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="w-full sm:w-[200px]">
+            <Select
+              value={categoryFilter}
+              onValueChange={handleCategoryFilterChange}
+            >
+              <SelectTrigger className="w-full h-12 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm transition-all focus:ring-2 focus:ring-[#1baa56]/20 focus:border-[#1baa56] rounded-2xl text-xs font-bold uppercase tracking-wide">
+                <SelectValue placeholder="CATEGORY" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-zinc-100 shadow-xl rounded-2xl p-1">
+                <SelectItem value="all" className="focus:bg-zinc-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">All Categories</SelectItem>
+                <SelectItem value={ExpenseCategory.MAINTENANCE} className="text-orange-600 focus:bg-orange-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">Maintenance</SelectItem>
+                <SelectItem value={ExpenseCategory.UTILITIES} className="text-blue-600 focus:bg-blue-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">Utilities</SelectItem>
+                <SelectItem value={ExpenseCategory.TRASH_FEE} className="text-green-600 focus:bg-green-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">Trash Fee</SelectItem>
+                <SelectItem value={ExpenseCategory.SUPPLIES} className="text-purple-600 focus:bg-purple-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">Supplies</SelectItem>
+                <SelectItem value={ExpenseCategory.OTHER} className="text-zinc-600 focus:bg-zinc-50 cursor-pointer rounded-xl font-bold text-xs uppercase tracking-wide py-3">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DateRangeFilter
+            startDate={startDate}
+            endDate={endDate}
+            onDateRangeChange={handleDateRangeChange}
+            onClear={handleClearDateRange}
+          />
         </div>
-        <DateRangeFilter
-          startDate={startDate}
-          endDate={endDate}
-          onDateRangeChange={handleDateRangeChange}
-          onClear={handleClearDateRange}
-        />
-      </FilterPanel>
+      </div>
 
       {/* Expenses List */}
-      {isLoading ? (
-        <ListCardSkeleton count={5} />
-      ) : paginatedExpenses.length === 0 ? (
-        <Card className="p-12">
-          <div className="text-center space-y-4">
-            <DollarSign className="h-16 w-16 text-muted-foreground mx-auto" />
-            <div>
-              <h3 className="text-lg font-semibold">No expenses found</h3>
-              <p className="text-muted-foreground">
-                {searchQuery || categoryFilter !== "all" || startDate || endDate
-                  ? "Try adjusting your filters"
-                  : "Get started by adding your first expense"}
-              </p>
-            </div>
-            {(searchQuery ||
-              categoryFilter !== "all" ||
-              startDate ||
-              endDate) && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchQuery("");
-                  setCategoryFilter("all");
-                  setStartDate("");
-                  setEndDate("");
-                }}
-              >
-                Clear filters
-              </Button>
-            )}
+      <div className="mt-8">
+        {isLoading ? (
+          <div className="grid gap-4">
+             {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-24 w-full bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-3xl" />
+             ))}
           </div>
-        </Card>
-      ) : (
-        <Card>
-          <div className="divide-y">
-            {paginatedExpenses.map((expense) => {
+        ) : paginatedExpenses.length === 0 ? (
+          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-3xl p-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800">
+             <DollarSign className="h-12 w-12 text-zinc-300 mx-auto mb-4" />
+             <h3 className="text-sm font-black uppercase tracking-widest text-zinc-400">
+               No expenses found
+             </h3>
+             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-300 mt-2 px-1">
+                {searchQuery || categoryFilter !== "all" || startDate || endDate
+                  ? "Adjust filters to see more results"
+                  : "Add an expense to get started"}
+             </p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {paginatedExpenses.map((expense: Expense) => {
               const Icon = categoryIcons[expense.category];
               return (
                 <div
                   key={expense.id}
-                  className="p-4 hover:bg-muted/50 transition-colors"
+                  className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 hover:shadow-xl hover:shadow-zinc-200/50 dark:hover:shadow-black/50 transition-all duration-300 cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-6"
+                  onClick={() => router.push(`/expenses/${expense.id}`)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div
-                        className={`h-12 w-12 rounded-lg flex items-center justify-center ${categoryColors[expense.category]}`}
-                      >
-                        <Icon className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">
-                            {expense.description}
-                          </h3>
-                          <Badge className={categoryColors[expense.category]}>
-                            {expense.category}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(expense.date), "MMM dd, yyyy")}
-                          </span>
-                          <span>•</span>
-                          <span className="font-medium text-foreground">
-                            {formatCurrency(expense.amount)}
-                          </span>
-                        </div>
-                      </div>
+                  <div className="flex items-center gap-5">
+                    <div className={`h-14 w-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm border ${categoryColors[expense.category].replace('bg-', 'border-').replace('text-', 'text-')}`}>
+                      <Icon className="h-7 w-7" />
                     </div>
-                    <div className="flex gap-2">
-                      <Link href={`/expenses/${expense.id}`}>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                    <div className="flex-1 min-w-0">
+                       <h3 className="font-black text-lg text-zinc-900 dark:text-zinc-100 truncate mb-1">
+                          {expense.description}
+                       </h3>
+                       <div className="flex flex-wrap gap-x-4 gap-y-1">
+                          <p className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border ${categoryColors[expense.category]}`}>
+                             {expense.category}
+                          </p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-1">
+                             <Calendar className="h-3 w-3" />
+                             {expense.date ? format(new Date(expense.date), "dd MMM yyyy") : "N/A"}
+                          </p>
+                       </div>
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-6 ml-1 sm:ml-0">
+                    <div className="text-right sm:min-w-[150px]">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">Amount</p>
+                      <p className="font-black text-xl text-[#1baa56]">
+                        {formatCurrency(expense.amount)}
+                      </p>
+                    </div>
+                    
+                    <Button variant="ghost" size="sm" className="h-10 w-10 rounded-full hover:bg-zinc-50 shrink-0">
+                      <Eye className="h-4 w-4 text-zinc-400" />
+                    </Button>
                   </div>
                 </div>
               );
             })}
           </div>
-        </Card>
-      )}
+        )}
+      </div>
 
       {/* Pagination */}
       <Pagination
