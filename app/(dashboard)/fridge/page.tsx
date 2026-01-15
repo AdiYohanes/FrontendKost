@@ -23,6 +23,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import {
   useFridgeItems,
@@ -168,7 +176,7 @@ export default function FridgePage() {
       </div>
 
       {/* Search */}
-      <Card>
+      <Card className="border-none shadow-none">
         <CardHeader>
           <CardTitle>Search</CardTitle>
           <CardDescription>Find items by name or owner</CardDescription>
@@ -186,160 +194,164 @@ export default function FridgePage() {
         </CardContent>
       </Card>
 
-      {/* Items Grid */}
-      <div>
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">
-            Fridge Items ({filteredItems.length})
-          </h2>
-        </div>
-
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-48 w-full" />
-            ))}
-          </div>
-        ) : filteredItems.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-12">
-              <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-4">
-                {searchQuery ? "No items found" : "No items in the fridge"}
-              </p>
-              {user?.role === UserRole.PENGHUNI && !searchQuery && (
-                <Button onClick={() => setIsAddDialogOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add First Item
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredItems.map((item) => {
-              const isMyItem = isOwner(item.ownerId);
-              const canEdit = isMyItem || canEditAny;
-
-              return (
-                <Card
-                  key={item.id}
-                  className={`transition-all ${
-                    isMyItem
-                      ? "border-primary shadow-md"
-                      : "border-muted opacity-80"
-                  }`}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          {item.itemName}
-                          {isMyItem && (
-                            <Badge variant="default" className="text-xs">
-                              Your Item
-                            </Badge>
-                          )}
-                        </CardTitle>
-                        <CardDescription className="mt-1">
-                          Owner: {item.resident?.user?.name || "Unknown"}
-                        </CardDescription>
-                      </div>
+      {/* Items Table */}
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-zinc-50/50 dark:bg-zinc-800/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50">
+              <TableHead className="w-[30%] text-xs font-black uppercase tracking-widest text-zinc-400 py-6 pl-6">Item Name</TableHead>
+              <TableHead className="w-[15%] text-xs font-black uppercase tracking-widest text-zinc-400 py-6">Quantity</TableHead>
+              <TableHead className="w-[20%] text-xs font-black uppercase tracking-widest text-zinc-400 py-6">Owner</TableHead>
+              <TableHead className="w-[20%] text-xs font-black uppercase tracking-widest text-zinc-400 py-6">Date Added</TableHead>
+              <TableHead className="w-[15%] text-end text-xs font-black uppercase tracking-widest text-zinc-400 py-6 pr-6">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              [...Array(5)].map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell colSpan={5} className="p-6">
+                    <Skeleton className="h-6 w-full rounded-lg" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : filteredItems.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-96 text-center">
+                  <div className="flex flex-col items-center justify-center p-8">
+                    <div className="h-20 w-20 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center mb-4">
+                      <Package className="h-10 w-10 text-zinc-300" />
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {/* Quantity */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Quantity:
-                      </span>
+                    <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-100 mb-1">
+                      {searchQuery ? "No items found" : "No items in fridge"}
+                    </h3>
+                    <p className="text-zinc-500 text-sm max-w-sm mx-auto mb-6">
+                      {searchQuery 
+                        ? "We couldn't find any items matching your search." 
+                        : "The shared fridge is currently empty."}
+                    </p>
+                    {user?.role === UserRole.PENGHUNI && !searchQuery && (
+                      <Button onClick={() => setIsAddDialogOpen(true)} className="rounded-xl">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add First Item
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredItems.map((item) => {
+                const isMyItem = isOwner(item.ownerId);
+                const canEdit = isMyItem || canEditAny;
+
+                return (
+                  <TableRow 
+                    key={item.id}
+                    className="group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                  >
+                    <TableCell className="py-6 pl-6">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
+                          <Package className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-zinc-900 dark:text-zinc-100 block">
+                            {item.itemName}
+                          </span>
+                          {isMyItem && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#1baa56]/10 text-[#1baa56]">
+                              YOUR ITEM
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-6">
                       {editingItem?.id === item.id ? (
                         <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            min="1"
-                            value={editingItem.quantity}
-                            onChange={(e) =>
-                              setEditingItem({
-                                ...editingItem,
-                                quantity: parseInt(e.target.value) || 1,
-                              })
-                            }
-                            className="w-20 h-8"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              handleQuantityUpdate(
-                                editingItem.id,
-                                editingItem.quantity
-                              )
-                            }
-                            disabled={updateMutation.isPending}
-                          >
-                            Save
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setEditingItem(null)}
-                          >
-                            Cancel
-                          </Button>
+                           <Input
+                             type="number"
+                             min="1"
+                             value={editingItem.quantity}
+                             onChange={(e) =>
+                               setEditingItem({
+                                 ...editingItem,
+                                 quantity: parseInt(e.target.value) || 1,
+                               })
+                             }
+                             className="w-20 h-9 bg-white dark:bg-zinc-900 text-center font-bold"
+                             autoFocus
+                           />
+                           <div className="flex gap-1">
+                             <Button
+                               size="icon"
+                               className="h-9 w-9 bg-green-500 hover:bg-green-600 text-white"
+                               onClick={() => handleQuantityUpdate(editingItem.id, editingItem.quantity)}
+                               disabled={updateMutation.isPending}
+                             >
+                                <Plus className="h-4 w-4 rotate-0" />
+                             </Button>
+                             <Button
+                               size="icon"
+                               variant="ghost"
+                               className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50"
+                               onClick={() => setEditingItem(null)}
+                             >
+                                <Trash2 className="h-4 w-4 rotate-45" />
+                             </Button>
+                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">{item.quantity}</span>
-                          {canEdit && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() =>
-                                setEditingItem({
-                                  id: item.id,
-                                  quantity: item.quantity,
-                                })
-                              }
-                            >
-                              <Pencil className="h-3 w-3" />
-                            </Button>
-                          )}
+                        <div className="flex items-center gap-3">
+                           <span className="text-sm font-bold bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-lg">
+                             x{item.quantity}
+                           </span>
+                           {canEdit && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7 text-zinc-400 hover:text-zinc-900 transition-all"
+                                onClick={() => setEditingItem({ id: item.id, quantity: item.quantity })}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                           )}
                         </div>
                       )}
-                    </div>
-
-                    {/* Date In */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Added:
-                      </span>
-                      <span className="text-sm">
-                        {item.dateIn
-                          ? format(new Date(item.dateIn), "dd MMM yyyy")
-                          : "N/A"}
-                      </span>
-                    </div>
-
-                    {/* Actions */}
-                    {canEdit && (
-                      <div className="pt-2 border-t">
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="w-full"
-                          onClick={() => setDeleteItemId(item.id)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Remove Item
-                        </Button>
+                    </TableCell>
+                    <TableCell className="py-6">
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                          {(item.resident?.user?.name || "U").charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                           {item.resident?.user?.name || "Unknown"}
+                        </span>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                    </TableCell>
+                    <TableCell className="py-6">
+                      <span className="text-sm font-medium text-zinc-500">
+                        {item.dateIn ? format(new Date(item.dateIn), "dd MMM yyyy") : "-"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-6 pr-6 text-right">
+                       {canEdit && (
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-opacity"
+                           onClick={() => setDeleteItemId(item.id)}
+                         >
+                           <Trash2 className="h-4 w-4" />
+                         </Button>
+                       )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {/* Add Item Dialog */}

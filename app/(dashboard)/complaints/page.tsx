@@ -159,72 +159,84 @@ export default function ComplaintsPage() {
       </div>
 
       {/* Complaints List */}
-      <div className="mt-8">
-        {isLoading ? (
-          <div className="grid gap-4">
-             {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-24 w-full bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-3xl" />
-             ))}
-          </div>
-        ) : filteredComplaints.length === 0 ? (
-          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-3xl p-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 mt-4">
-             <Wrench className="h-12 w-12 text-zinc-300 mx-auto mb-4" />
-             <h3 className="text-sm font-black uppercase tracking-widest text-zinc-400">
-               No complaints found
-             </h3>
-             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-300 mt-2 px-1">
-                {searchQuery || statusFilter !== "all"
-                  ? "Adjust filters to see more results"
-                  : "Submit a complaint if you need help"}
-             </p>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {filteredComplaints.map((complaint, index) => {
-              const statusBadge = getStatusBadge(complaint.status);
+      {/* Complaints Table */}
+      <div className="mt-8 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-zinc-50/50 dark:bg-zinc-800/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50">
+              <TableHead className="w-[100px] text-xs font-black uppercase tracking-widest text-zinc-400 py-6 pl-6">ID</TableHead>
+              <TableHead className="text-xs font-black uppercase tracking-widest text-zinc-400 py-6">Subject</TableHead>
+              <TableHead className="w-[150px] text-xs font-black uppercase tracking-widest text-zinc-400 py-6">Date</TableHead>
+              <TableHead className="w-[150px] text-xs font-black uppercase tracking-widest text-zinc-400 py-6">Status</TableHead>
 
-              return (
-                <div
-                  key={complaint.id}
-                  className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 hover:shadow-xl hover:shadow-zinc-200/50 dark:hover:shadow-black/50 transition-all duration-300 cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-6"
-                  onClick={() => router.push(`/complaints/${complaint.id}`)}
-                >
-                  <div className="flex items-center gap-5">
-                    <div className="h-14 w-14 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center shrink-0 shadow-sm group-hover:bg-[#1baa56]/10 group-hover:border-[#1baa56]/20 transition-colors">
-                      <Wrench className="h-7 w-7 text-zinc-400 group-hover:text-[#1baa56] transition-colors" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              [...Array(5)].map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell colSpan={4} className="p-6">
+                    <Skeleton className="h-6 w-full rounded-lg" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : filteredComplaints.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-96 text-center">
+                  <div className="flex flex-col items-center justify-center p-8">
+                    <div className="h-20 w-20 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center mb-4">
+                      <Wrench className="h-10 w-10 text-zinc-300" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-[#1baa56] bg-[#1baa56]/10 px-2 py-0.5 rounded-md">
-                          #{String(index + 1).padStart(3, "0")}
-                        </span>
-                        <h3 className="font-black text-lg text-zinc-900 dark:text-zinc-100 truncate">
+                    <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-100 mb-1">
+                      No complaints found
+                    </h3>
+                    <p className="text-zinc-500 text-sm max-w-sm mx-auto">
+                      {searchQuery || statusFilter !== "all"
+                        ? "We couldn't find any complaints matching your current filters."
+                        : "There are no complaints to display at the moment."}
+                    </p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredComplaints.map((complaint, index) => {
+                const statusBadge = getStatusBadge(complaint.status);
+                return (
+                  <TableRow 
+                    key={complaint.id}
+                    className="group cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                    onClick={() => router.push(`/complaints/${complaint.id}`)}
+                  >
+                    <TableCell className="py-6 pl-6">
+                      <span className="font-mono text-zinc-500 font-medium">#{String(index + 1).padStart(3, "0")}</span>
+                    </TableCell>
+                    <TableCell className="py-6">
+                      <div className="space-y-1">
+                        <span className="font-bold text-zinc-900 dark:text-zinc-100 line-clamp-1 block">
                           {complaint.title}
-                        </h3>
+                        </span>
+                        <span className="text-xs text-zinc-500 line-clamp-1 block max-w-[300px]">
+                          {complaint.description}
+                        </span>
                       </div>
-                      <p className="text-xs font-bold text-zinc-400 truncate max-w-md">
-                        {complaint.description}
-                      </p>
-                    </div>
-                  </div>
+                    </TableCell>
+                    <TableCell className="py-6">
+                      <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                        {complaint.createdAt ? format(new Date(complaint.createdAt), "dd MMM yyyy") : "-"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-6">
+                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadge.className}`}>
+                        {statusBadge.label}
+                      </span>
+                    </TableCell>
 
-                  <div className="flex flex-wrap items-center gap-4 sm:gap-8 ml-1 sm:ml-0">
-                    <div className="text-right sm:min-w-[120px]">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">Submitted</p>
-                      <p className="font-black text-sm text-zinc-900 dark:text-zinc-100">
-                        {complaint.createdAt ? format(new Date(complaint.createdAt), "dd MMM yyyy") : "N/A"}
-                      </p>
-                    </div>
-
-                    <div className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border text-center min-w-[100px] ${statusBadge.className.split(' ').filter(c => !c.includes('bg')).join(' ')}`}>
-                       {statusBadge.label}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

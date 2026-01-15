@@ -2,13 +2,20 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useExpenses } from "@/lib/hooks/useExpenses";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  expenseSchema,
+  ExpenseFormData,
+} from "@/lib/validations/expense.schema";
+import { useExpenses, useCreateExpense } from "@/lib/hooks/useExpenses";
 import { ExpenseCategory, Expense } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useQueryParams } from "@/lib/hooks/useQueryParams";
 import { ITEMS_PER_PAGE } from "@/lib/constants/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,6 +25,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { DateRangeFilter } from "@/components/filters/DateRangeFilter";
 import { FilterPanel } from "@/components/filters/FilterPanel";
 import {
@@ -37,9 +60,12 @@ import {
   Package,
   MoreHorizontal,
   Calendar,
+  Save,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/errorHandler";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -76,137 +102,33 @@ export default function ExpensesPage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  // Build query params
-  const queryParams = useMemo(() => {
-    const params: Record<string, string> = {};
-    if (categoryFilter !== "all") params.category = categoryFilter;
-    if (startDate) params.startDate = startDate;
-    if (endDate) params.endDate = endDate;
-    return params;
-  }, [categoryFilter, startDate, endDate]);
+  const form = useForm<ExpenseFormData>({
+    resolver: zodResolver(expenseSchema),
+    defaultValues: {
+      category: ExpenseCategory.MAINTENANCE,
+      amount: 0,
+      description: "",
+      date: format(new Date(), "yyyy-MM-dd"),
+    },
+  });
 
-  const { data: expenses, isLoading, error } = useExpenses(queryParams);
+  const createExpenseMutation = useCreateExpense();
 
-  // Check if user is OWNER
-  useEffect(() => {
-    if (user && user.role !== "OWNER") {
-      window.location.href = "/dashboard";
+  const onCreateSubmit = async (data: ExpenseFormData) => {
+    try {
+      await createExpenseMutation.mutateAsync(data);
+      toast.success("Expense created successfully");
+      setIsCreateDialogOpen(false);
+      form.reset();
+    } catch (error: any) {
+      toast.error(getErrorMessage(error));
     }
-  }, [user]);
-
-  // Calculate statistics grouped by category
-  const stats = useMemo(() => {
-    if (!expenses)
-      return {
-        total: 0,
-        byCategory: {},
-        monthlyTrend: 0,
-        currentMonthTotal: 0,
-        lastMonthTotal: 0,
-      };
-
-    const byCategory: Record<string, number> = {};
-    let total = 0;
-    let currentMonthTotal = 0;
-    let lastMonthTotal = 0;
-
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-
-    expenses.forEach((expense) => {
-      total += expense.amount;
-      byCategory[expense.category] =
-        (byCategory[expense.category] || 0) + expense.amount;
-
-      const expenseDate = new Date(expense.date);
-      const expenseMonth = expenseDate.getMonth();
-      const expenseYear = expenseDate.getFullYear();
-
-      if (expenseMonth === currentMonth && expenseYear === currentYear) {
-        currentMonthTotal += expense.amount;
-      } else if (expenseMonth === lastMonth && expenseYear === lastMonthYear) {
-        lastMonthTotal += expense.amount;
-      }
-    });
-
-    // Calculate trend percentage
-    const monthlyTrend =
-      lastMonthTotal > 0
-        ? ((currentMonthTotal - lastMonthTotal) / lastMonthTotal) * 100
-        : currentMonthTotal > 0
-          ? 100
-          : 0;
-
-    return {
-      total,
-      byCategory,
-      monthlyTrend,
-      currentMonthTotal,
-      lastMonthTotal,
-    };
-  }, [expenses]);
-
-  // Filter expenses by search query
-  const filteredExpenses = useMemo(() => {
-    if (!expenses) return [];
-
-    return expenses.filter((expense) => {
-      const matchesSearch =
-        expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        expense.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-      return matchesSearch;
-    });
-  }, [expenses, searchQuery]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredExpenses.length / ITEMS_PER_PAGE);
-  const paginatedExpenses = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredExpenses.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredExpenses, currentPage]);
-
-  // Reset to page 1 when filters change
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    setCurrentPage(1);
-  };
-
-  const handleCategoryFilterChange = (value: string) => {
-    setCategoryFilter(value);
-    setCurrentPage(1);
-  };
-
-  const handleDateRangeChange = (start: string, end: string) => {
-    setStartDate(start);
-    setEndDate(end);
-    setCurrentPage(1);
-  };
-
-  const handleClearDateRange = () => {
-    setStartDate("");
-    setEndDate("");
-    setCurrentPage(1);
-  };
-
-  const handleClearAllFilters = () => {
-    setSearchQuery("");
-    setCategoryFilter("all");
-    setStartDate("");
-    setEndDate("");
-    setCurrentPage(1);
   };
 
   if (user?.role !== "OWNER") {
+    // ... (keep existing access denied check)
     return (
       <div className="p-6">
         <Card className="p-12">
@@ -228,6 +150,7 @@ export default function ExpensesPage() {
   }
 
   if (error) {
+    // ... (keep existing error check)
     return (
       <div className="p-6">
         <Card className="p-6">
@@ -250,12 +173,139 @@ export default function ExpensesPage() {
             Operational Cost Management
           </p>
         </div>
-        <Link href="/expenses/new">
-          <Button size="lg" className="h-12 md:h-14 rounded-2xl bg-[#1baa56] hover:bg-[#168a46] text-white shadow-xl shadow-[#1baa56]/20 hover:shadow-[#1baa56]/30 hover:-translate-y-1 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest px-8">
-            <Plus className="mr-2 h-5 w-5" />
-            Add Expense
-          </Button>
-        </Link>
+        
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="lg" className="h-12 md:h-14 rounded-2xl bg-[#1baa56] hover:bg-[#168a46] text-white shadow-xl shadow-[#1baa56]/20 hover:shadow-[#1baa56]/30 hover:-translate-y-1 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest px-8">
+              <Plus className="mr-2 h-5 w-5" />
+              Add Expense
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px] bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-3xl p-0 overflow-hidden">
+             <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+               <DialogTitle className="text-xl font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-tight">Record New Expense</DialogTitle>
+               <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mt-1">
+                 Add a new operational cost
+               </p>
+             </div>
+             
+             <div className="p-6">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onCreateSubmit)} className="space-y-5">
+                    
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-black uppercase tracking-widest text-zinc-500">Category</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 font-bold">
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="rounded-xl border-zinc-100 shadow-xl">
+                              <SelectItem value={ExpenseCategory.MAINTENANCE} className="py-3 font-bold">🔧 Maintenance</SelectItem>
+                              <SelectItem value={ExpenseCategory.UTILITIES} className="py-3 font-bold">⚡ Utilities</SelectItem>
+                              <SelectItem value={ExpenseCategory.TRASH_FEE} className="py-3 font-bold">🗑️ Trash Fee</SelectItem>
+                              <SelectItem value={ExpenseCategory.SUPPLIES} className="py-3 font-bold">📦 Supplies</SelectItem>
+                              <SelectItem value={ExpenseCategory.OTHER} className="py-3 font-bold">📋 Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="amount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-black uppercase tracking-widest text-zinc-500">Amount (IDR)</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-bold text-sm">Rp</span>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  placeholder="0"
+                                  className="pl-10 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 font-bold"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="date"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-black uppercase tracking-widest text-zinc-500">Date</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="date" 
+                                className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 font-bold"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-black uppercase tracking-widest text-zinc-500">Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="What was this expense for?"
+                              className="min-h-[100px] resize-none rounded-xl bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 font-medium"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="pt-4 flex gap-3">
+                         <Button
+                            type="button"
+                            variant="ghost"
+                            className="flex-1 h-12 rounded-xl font-bold text-zinc-500"
+                            onClick={() => {
+                              setIsCreateDialogOpen(false);
+                              form.reset();
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                         <Button 
+                            type="submit" 
+                            disabled={createExpenseMutation.isPending}
+                            className="flex-[2] h-12 rounded-xl bg-[#1baa56] hover:bg-[#168a46] text-white font-black uppercase tracking-widest shadow-lg shadow-[#1baa56]/20"
+                          >
+                            {createExpenseMutation.isPending ? "Saving..." : "Save Expense"}
+                          </Button>
+                    </div>
+
+                  </form>
+                </Form>
+             </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Statistics Cards */}
